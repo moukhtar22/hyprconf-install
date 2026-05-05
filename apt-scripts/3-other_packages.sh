@@ -72,7 +72,6 @@ main_packages=(
     imagemagick
     jq
     kitty
-    kvantum
     qt5-style-kvantum
     less
     libx11-dev
@@ -104,18 +103,15 @@ main_packages=(
     qt6ct
     libqt6svg6
     ripgrep
-    rofi-wayland
     slurp
-    swaynotificationcenter
-    satty
+    sway-notification-center
     tar
     unzip
     waybar
     wget
     wl-clipboard
     xdg-utils
-    xfce4-polkit
-    yazi
+    xfce-polkit
 )
 
 # other necessary packages
@@ -128,7 +124,6 @@ other_packages=(
     mpv-mpris
     nwg-look
     pamixer
-    awww
     wlogout
 )
 
@@ -182,6 +177,45 @@ fi
 if [ -f '/usr/local/bin/grimblast' ]; then
   msg dn "Grimblast was installed successfully..."
   printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log"
+fi
+
+# installing rofi-wayland dependencies
+msg act "Installing rofi-wayland dependencies..."
+sudo apt-get install -y meson ninja-build flex bison pkg-config libpango1.0-dev libcairo2-dev libglib2.0-dev libgdk-pixbuf2.0-dev libstartup-notification0-dev libxkbcommon-dev libxkbcommon-x11-dev libxcb-xkb-dev libxcb-randr0-dev libxcb-xinerama0-dev libxcb-ewmh-dev libxcb-icccm4-dev libxcb-cursor-dev libxcb-util-dev libwayland-dev wayland-protocols 2>&1 | tee -a "$log" &> /dev/null
+
+if ! command -v rofi &> /dev/null; then
+  msg act "Installing rofi-wayland..."
+  git clone -b wayland --depth=1 --recursive https://github.com/in0ni/rofi-wayland.git "$parent_dir/.cache/rofi-wayland/" 2>&1 | tee -a "$log" &> /dev/null
+  cd "$parent_dir/.cache/rofi-wayland"
+  meson setup build 2>&1 | tee -a "$log" &> /dev/null
+  ninja -C build 2>&1 | tee -a "$log" &> /dev/null
+  sudo ninja -C build install 2>&1 | tee -a "$log" &> /dev/null
+
+  sleep 1
+  rm -rf "$parent_dir/.cache/rofi-wayland" 2>&1 | tee -a "$log"
+else
+  msg dn "rofi-wayland is already installed..."
+fi
+
+if command -v rofi &> /dev/null; then
+  printf "[ DONE ] - rofi-wayland was installed successfully...\n" 2>&1 | tee -a "$log"
+fi
+
+# installing awww
+msg act "Installing awww dependencies..."
+sudo apt-get install -y cargo liblz4-dev libwayland-dev wayland-protocols 2>&1 | tee -a "$log" &> /dev/null
+
+if ! command -v awww &> /dev/null; then
+  msg act "Installing awww..."
+  cargo install awww awww-daemon --git https://codeberg.org/LGFae/awww.git 2>&1 | tee -a "$log" &> /dev/null
+  sudo cp "$HOME/.cargo/bin/awww" /usr/local/bin/awww 2>&1 | tee -a "$log" &> /dev/null
+  sudo cp "$HOME/.cargo/bin/awww-daemon" /usr/local/bin/awww-daemon 2>&1 | tee -a "$log" &> /dev/null
+else
+  msg dn "awww is already installed..."
+fi
+
+if command -v awww &> /dev/null; then
+  printf "[ DONE ] - awww was installed successfully...\n" 2>&1 | tee -a "$log"
 fi
 
 sleep 1 && clear

@@ -70,7 +70,6 @@ checkup=(
     imagemagick
     jq
     kitty
-    kvantum
     qt5-style-kvantum
     libx11-dev
     libxext-dev
@@ -99,17 +98,14 @@ checkup=(
     qt6ct
     libqt6svg6
     ripgrep
-    rofi-wayland
     slurp
-    swaynotificationcenter
-    satty
+    sway-notification-center
     tar
     unzip
     waybar
     wget
     wl-clipboard
     xdg-utils
-    yazi
     btop
     cava
     cliphist
@@ -118,7 +114,6 @@ checkup=(
     mpv-mpris
     nwg-look
     pamixer
-    awww
     ark
     crudini
     dolphin
@@ -135,7 +130,7 @@ checkup=(
     qt6-qt5compat 
     qt6-qtdeclarative 
     libqt6svg6
-    xfce4-polkit
+    xfce-polkit
     xdg-desktop-portal-hyprland
     xdg-desktop-portal-kde
 )
@@ -172,7 +167,7 @@ done
 
 # checking if pywal is installed
 if ! command -v wal &> /dev/null; then
-    sudo pip install pywal 2>&1 | tee -a "$log" &> /dev/null
+    sudo pip install pywal --break-system-packages 2>&1 | tee -a "$log" &> /dev/null
 fi
 
 sleep 1 && clear
