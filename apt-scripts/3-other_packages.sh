@@ -66,23 +66,23 @@ fi
 main_packages=(
     curl
     fastfetch
-    ffmpeg-free
+    ffmpeg
     git
     grim
-    ImageMagick
+    imagemagick
     jq
     kitty
     kvantum
-    kvantum-qt5
+    qt5-style-kvantum
     less
-    libX11-devel
-    libXext-devel
+    libx11-dev
+    libxext-dev
     lxappearance
     make
-    network-manager-applet
-    NetworkManager-tui
+    network-manager-gnome
+    network-manager
     nodejs
-    nodejs-npm
+    npm
     neovim
     nvtop
     pamixer
@@ -90,31 +90,31 @@ main_packages=(
     pciutils
     pavucontrol
     pipewire-alsa
-    pipewire-utils
+    pipewire-bin
     pipewire-pulse
     power-profiles-daemon
     pulseaudio-utils
     python3-requests
-    python3-devel
-    python3-gobject
+    python3-dev
+    python3-gi
     python3-pip
-    python3-pillow
+    python3-pil
     python3-pyquery
     qt5ct
-    qt6ct-kde
-    qt6-qtsvg
+    qt6ct
+    libqt6svg6
     ripgrep
     rofi-wayland
     slurp
-    SwayNotificationCenter
+    swaynotificationcenter
     satty
     tar
     unzip
     waybar
-    wget2
+    wget
     wl-clipboard
     xdg-utils
-    xfce-polkit
+    xfce4-polkit
     yazi
 )
 
@@ -123,7 +123,7 @@ other_packages=(
     btop
     cava
     cliphist
-    kde-partitionmanager
+    partitionmanager
     mpv
     mpv-mpris
     nwg-look
@@ -157,7 +157,7 @@ printf "\n\n"
 # installing necessary packages
 for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}"; do
   install_package "$packages"
-  if rpm -q "$packages" &> /dev/null; then
+  if dpkg -s "$packages" &> /dev/null; then
     echo "[ DONE ] - $packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
   else
     echo "[ ERROR ] - Sorry, could not install '$packages'" 2>&1 | tee -a "$log" &> /dev/null

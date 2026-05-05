@@ -53,11 +53,11 @@ removable_pkg=(
 )
 
 for pkg in "${removable_pkg[@]}"; do
-    if rpm -q "$pkg" &> /dev/null; then
+    if dpkg -s "$pkg" &> /dev/null; then
         msg act "$pkg was found, removing it..."
-        sudo dnf remove -y "$pkg" 2>&1 | tee -a "$log"
+        sudo apt-get remove -y "$pkg" 2>&1 | tee -a "$log"
 
-        if rpm -q "$pkg" &> /dev/null; then
+        if dpkg -s "$pkg" &> /dev/null; then
             msg err "Could not remove $pkg"
         else
             msg dn "$pkg was removed successfully!"

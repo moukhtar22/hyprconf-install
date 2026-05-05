@@ -3,7 +3,7 @@
 #### Advanced Hyprland Installation Script by ####
 #### Shell Ninja ( https://github.com/shell-ninja ) ####
 
-# color defination
+# color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -103,7 +103,7 @@ for shell in "${to_install[@]}"; do
     install_package "$shell"
 done
 
-if [[ "$pkgman" == "pacman" || "$pkgman" == "dnf" ]]; then
+if [[ "$pkgman" == "pacman" || "$pkgman" == "dnf" || "$pkgman" == "apt" ]]; then
     install_package thefuck 2>&1 | tee -a "$log"
 elif [[ "$pkgman" == "zypper" ]]; then
     msg att "Some necessary packages will be installed using ${pkgman}..." && sleep 1

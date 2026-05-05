@@ -17,14 +17,15 @@ display_text() {
     gum style \
         --border rounded \
         --align center \
-        --width 40 \
+        --width 60 \
         --margin "1" \
         --padding "1" \
-        '
-   ____          __    
-  / __/__  ___  / /____
- / _// _ \/ _ \/ __(_-<
-/_/  \___/_//_/\__/___/
+'
+   __ __              __             __
+  / // /_ _____  ____/ /__ ____  ___/ /
+ / _  / // / _ \/ __/ / _ `/ _ \/ _  / 
+/_//_/\_, / .__/_/ /_/\_,_/_//_/\_,_/  
+     /___/_/                           
 '
 }
 
@@ -40,54 +41,54 @@ source "$dir/1-global_script.sh"
 parent_dir="$(dirname "$dir")"
 source "$parent_dir/interaction_fn.sh"
 
-# log directory
-log_dir="$parent_dir/Logs"
-log="$log_dir/fonts-$(date +%d-%m-%y).log"
-
 # skip installed cache
 cache_dir="$parent_dir/.cache"
 installed_cache="$cache_dir/installed_packages"
 
+# log directory
+log_dir="$parent_dir/Logs"
+log="$log_dir/hyprland-$(date +%d-%m-%y).log"
+
 if [[ -f "$log" ]]; then
     errors=$(grep "ERROR" "$log")
-    last_installed=$(grep "noto-fonts-emoji" "$log" | awk {'print $2'})
+    last_installed=$(grep "hyprsunset" "$log" | awk {'print $2'})
     if [[ -z "$errors" && "$last_installed" == "DONE" ]]; then
         msg skp "Skipping this script. No need to run it again..."
         sleep 1
         exit 0
     fi
-
 else
     mkdir -p "$log_dir"
     touch "$log"
 fi
 
-# necessary fonts [ new installable fonts should be added here ]
-fonts=(
-    ttf-font-awesome
-    ttf-cascadia-code-nerd
-    ttf-jetbrains-mono-nerd
-    ttf-meslo-nerd
-    noto-fonts
-    noto-fonts-emoji
+_hypr=(
+    hyprland
+    hyprlock
+    hypridle
+    hyprcursor
+    hyprsunset
+    # hyprpolkitagent
+    pyprland
 )
 
 # checking already installed packages 
-for skipable in "${fonts[@]}"; do
+for skipable in "${_hypr[@]}"; do
     skip_installed "$skipable"
 done
 
-to_install=($(printf "%s\n" "${fonts[@]}" | grep -vxFf "$installed_cache"))
+to_install=($(printf "%s\n" "${_hypr[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
-# Instlling main packages...
-for font in "${to_install[@]}"; do
-    install_package "$font"
-    if sudo pacman -Q "$font" &>/dev/null; then
-        echo "[ DONE ] - $font was installed successfully!\n" 2>&1 | tee -a "$log" &>/dev/null
+# Installation of Hyprland basics
+for hypr_pkgs in "${to_install[@]}"; do
+    install_package "$hypr_pkgs"
+
+    if dpkg -s "$hypr_pkgs" &> /dev/null; then
+        echo "[ DONE ] - '$hypr_pkgs' was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
-        echo "[ ERROR ] - Sorry, could not install $font!\n" 2>&1 | tee -a "$log" &>/dev/null
+        echo "[ ERROR ] - Sorry, could not install '$hypr_pkgs'" 2>&1 | tee -a "$log" &> /dev/null
     fi
 done
 

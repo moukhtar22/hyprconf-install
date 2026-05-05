@@ -3,7 +3,7 @@
 #### Advanced Hyprland Installation Script by ####
 #### Shell Ninja ( https://github.com/shell-ninja ) ####
 
-# color defination
+# color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -86,6 +86,32 @@ gpgcheck=1
 gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo &> /dev/null
 
     sudo yum install --assumeyes gum &> /dev/null
+
+    if command -v gum &> /dev/null; then
+        printf "${cyan}::${end} Successfully installed ${cyan}gum${end}...\n"
+    fi
+fi
+
+# only for debian/ubuntu
+if command -v apt-get &> /dev/null; then
+
+    if dpkg -s git &> /dev/null; then
+        printf "${magenta}[ Skip ]${end} Skipping git, it's already installed...\n"
+    else
+        printf "${green}=>${end} Installing git...\n"
+        if sudo apt-get install -y git; then
+            printf "${cyan}::${end} Successfully installed ${cyan}git${end}...\n"
+        fi
+    fi
+
+    sleep 1
+
+    printf "${green}=>${end} Installing gum...\n"
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg &> /dev/null
+    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list &> /dev/null
+    sudo apt-get update &> /dev/null
+    sudo apt-get install -y gum &> /dev/null
 
     if command -v gum &> /dev/null; then
         printf "${cyan}::${end} Successfully installed ${cyan}gum${end}...\n"

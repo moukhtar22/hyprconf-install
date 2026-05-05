@@ -5,7 +5,7 @@
 
 # this script will be a curl of wget link. by running this script, it will clone the repository and execute the main script.
 
-# color defination
+# color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -48,7 +48,7 @@ for pkg in "${packages[@]}"; do
             sudo zypper in -y "$pkg";
 
             if sudo zypper se -i "$pkg" &> /dev/null; then
-                printf "${cyan}::${end} $pkg was installed sucessfully!\n"
+                printf "${cyan}::${end} $pkg was installed successfully!\n"
             fi
         fi
     fi
@@ -102,6 +102,42 @@ gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
     fi
 
     if rpm -q gum &> /dev/null; then
+        printf "${cyan}::${end} Gum was installed successfully!\n"
+    fi
+fi
+
+# only for debian/ubuntu
+if command -v apt-get &> /dev/null; then
+
+    for _pkg in git unzip wget curl; do
+
+        if dpkg -s $_pkg &> /dev/null; then
+            printf "${magenta}[ SKIP ]${end} Skipping $_pkg, it was already installed..\n"
+        else
+            printf "${green}=>${end} Installing $_pkg...\n"
+            sudo apt-get install -y $_pkg &> /dev/null
+            
+            if dpkg -s $_pkg &> /dev/null; then
+                printf "${cyan}::${end} $_pkg was installed successfully!\n"
+            fi
+        fi
+        
+    done
+
+    sleep 1
+
+    if dpkg -s gum &> /dev/null; then
+        printf "${magenta}[ SKIP ]${end} Skipping gum, it was already installed..\n"
+    else
+        printf "${green}=>${end} Installing gum...\n"
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg &> /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list &> /dev/null
+        sudo apt-get update &> /dev/null
+        sudo apt-get install -y gum &> /dev/null
+    fi
+
+    if dpkg -s gum &> /dev/null; then
         printf "${cyan}::${end} Gum was installed successfully!\n"
     fi
 fi

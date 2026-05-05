@@ -64,56 +64,56 @@ checkup=(
     curl
     # dunst
     fastfetch
-    ffmpeg-free
+    ffmpeg
     git
     grim
-    ImageMagick
+    imagemagick
     jq
     kitty
     kvantum
-    kvantum-qt5
-    libX11-devel
-    libXext-devel
+    qt5-style-kvantum
+    libx11-dev
+    libxext-dev
     lxappearance
     make
-    network-manager-applet
-    NetworkManager-tui
+    network-manager-gnome
+    network-manager
     neovim
     nvtop
     pamixer
     pciutils
     pavucontrol
     pipewire-alsa
-    pipewire-utils
+    pipewire-bin
     pipewire-pulse
     # polkit-kde-agent
     power-profiles-daemon
     pulseaudio-utils
     python3-requests
-    python3-devel
-    python3-gobject
+    python3-dev
+    python3-gi
     python3-pip
-    python3-pillow
+    python3-pil
     python3-pyquery
     qt5ct
-    qt6ct-kde
-    qt6-qtsvg
+    qt6ct
+    libqt6svg6
     ripgrep
     rofi-wayland
     slurp
-    SwayNotificationCenter
+    swaynotificationcenter
     satty
     tar
     unzip
     waybar
-    wget2
+    wget
     wl-clipboard
     xdg-utils
     yazi
     btop
     cava
     cliphist
-    kde-partitionmanager
+    partitionmanager
     mpv
     mpv-mpris
     nwg-look
@@ -124,18 +124,18 @@ checkup=(
     dolphin
     gwenview
     okular
-    fontawesome-fonts-all
-    google-noto-sans-cjk-fonts
-    google-noto-color-emoji-fonts
-    google-noto-emoji-fonts
-    jetbrains-mono-fonts
-    qt5-qtgraphicaleffects
-    qt5-qtquickcontrols
+    fonts-font-awesome
+    fonts-noto-cjk
+    fonts-noto-color-emoji
+    fonts-noto-core
+    fonts-jetbrains-mono
+    qml-module-qtgraphicaleffects
+    qml-module-qtquick-controls2
     sddm
     qt6-qt5compat 
     qt6-qtdeclarative 
-    qt6-qtsvg
-    xfce-polkit
+    libqt6svg6
+    xfce4-polkit
     xdg-desktop-portal-hyprland
     xdg-desktop-portal-kde
 )
@@ -153,9 +153,9 @@ printf "\n\n"
 # Instlling main packages...
 for _pkgs in "${to_install[@]}"; do
     msg act "Somehow $_pkgs could not be installed before. Installing it now..."
-    sudo dnf install -y "$_pkgs"
+    sudo apt-get install -y "$_pkgs"
 
-    if rpm -q "$_pkgs" &> /dev/null; then
+    if dpkg -s "$_pkgs" &> /dev/null; then
 
         msg dn "Finally $_pkgs was installed successfully!"
         echo

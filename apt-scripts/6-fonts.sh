@@ -64,11 +64,11 @@ fi
 
 # installable fonts will be here
 fonts=(
-    fontawesome-fonts-all
-    google-noto-sans-cjk-fonts
-    google-noto-color-emoji-fonts
-    google-noto-emoji-fonts
-    jetbrains-mono-fonts
+    fonts-font-awesome
+    fonts-noto-cjk
+    fonts-noto-color-emoji
+    fonts-noto-core
+    fonts-jetbrains-mono
 )
 
 # checking already installed packages 
@@ -83,7 +83,7 @@ printf "\n\n"
 for font in "${to_install[@]}"; do
   install_package "$font"
 
-    if rpm -q "$font" &> /dev/null; then
+    if dpkg -s "$font" &> /dev/null; then
         echo " [ DONE ] - $font was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
         echo "[ ERROR ] - Sorry, could not install $font" 2>&1 | tee -a "$log" &> /dev/null

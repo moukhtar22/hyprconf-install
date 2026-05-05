@@ -93,12 +93,10 @@ case $browser in
             msg skp "Google Chrome is already installed. Skipping"
             exit 0
         else
-            install_package fedora-workstation-repositories
-            sudo dnf config-manager setopt google-chrome.enabled=1 &> /dev/null
-
-            sleep 1
-
-            install_package google-chrome-stable
+            msg act "Installing Google Chrome..."
+            wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo apt-get install -y ./google-chrome-stable_current_amd64.deb &> /dev/null
+            rm google-chrome-stable_current_amd64.deb
         fi
         sleep 1
 
@@ -165,12 +163,8 @@ case $browser in
             msg skp "Zen browser is already installed. Skipping"
             exit 0
         else
-            msg act "Installing the zen-browser..." && sleep 0.5
-            msg att "Enabling the copr repo for it..."
-            sudo dnf copr enable sneexy/zen-browser -y
-            sudo wget "https://copr.fedorainfracloud.org/coprs/sneexy/zen-browser/repo/fedora-$(rpm -E %fedora)/sneexy-zen-browsder-fedora-$(rpm -E %fedora).repo" -O "/etc/yum.repos.d/_copr_sneexy-zen-browser.repo"
+            msg err "Zen Browser is not currently available via apt. Skipping..."
             sleep 1
-            sudo dnf install zen-browser-avx2 -y
         fi
 
         sleep 1

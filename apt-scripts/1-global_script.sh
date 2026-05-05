@@ -28,7 +28,7 @@ skip_installed() {
 
     [[ ! -f "$installed_cache" ]] && touch "$installed_cache"
 
-    if rpm -q "$1" &> /dev/null; then
+    if dpkg -s "$1" &> /dev/null; then
         msg skp "$1 is already installed. Skipping..." && sleep 0.1
         if ! grep -qx "$1" "$installed_cache"; then
             echo "$1" >> "$installed_cache"
@@ -40,9 +40,9 @@ skip_installed() {
 install_package() {
 
     msg act "Installing $1..."
-    sudo dnf install -y "$1"
+    sudo apt-get install -y "$1"
     
-    if rpm -q "$1" &> /dev/null ; then
+    if dpkg -s "$1" &> /dev/null ; then
         msg dn "$1 was installed successfully!"
     else
         msg err "$1 failed to install. Maybe there was an issue..."
