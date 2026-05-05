@@ -68,7 +68,6 @@ _hypr=(
     hypridle
     hyprcursor
     hyprsunset
-    # hyprpolkitagent
     pyprland
 )
 
@@ -81,9 +80,28 @@ to_install=($(printf "%s\n" "${_hypr[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
+# Check for Debian 13 (trixie)
+is_debian_13=false
+if grep -qiE 'trixie|version_id="?13"?' /etc/os-release 2>/dev/null; then
+    is_debian_13=true
+fi
+
+if [[ "$is_debian_13" == true ]]; then
+    if ! grep -q "^deb.*trixie-backports" /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; then
+        msg act "Adding trixie-backports repository for Hyprland..."
+        echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/trixie-backports.list > /dev/null
+        sudo apt-get update
+    fi
+fi
+
 # Installation of Hyprland basics
 for hypr_pkgs in "${to_install[@]}"; do
-    install_package "$hypr_pkgs"
+    msg act "Installing $hypr_pkgs..."
+    if [[ "$is_debian_13" == true ]]; then
+        sudo apt-get install -y -t trixie-backports "$hypr_pkgs"
+    else
+        sudo apt-get install -y "$hypr_pkgs"
+    fi
 
     if dpkg -s "$hypr_pkgs" &> /dev/null; then
         echo "[ DONE ] - '$hypr_pkgs' was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
