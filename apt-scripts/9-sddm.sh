@@ -102,16 +102,16 @@ for sddm_pkgs in "${to_install[@]}"; do
 done
 
 # Check if other login managers are installed and disabling their service before enabling sddm
-for login_manager in "${logins[@]}"; do
-  if dpkg -s "$login_manager" &> /dev/null; then
-    msg act "Disabling $login_manager..."
-    sudo systemctl disable "$login_manager" 2>&1 | tee -a "$log"
-  fi
-done
+# for login_manager in "${logins[@]}"; do
+#   if dpkg -s "$login_manager" &> /dev/null; then
+#     msg act "Disabling $login_manager..."
+#     sudo systemctl disable "$login_manager" 2>&1 | tee -a "$log"
+#   fi
+# done
 
-msg act "Activating sddm service..."
-sudo systemctl set-default graphical.target 2>&1 | tee -a "$log"
-sudo systemctl enable sddm.service 2>&1 | tee -a "$log"
+# msg act "Activating sddm service..."
+# sudo systemctl set-default graphical.target 2>&1 | tee -a "$log"
+# sudo systemctl enable sddm.service 2>&1 | tee -a "$log"
 
 # run sddm theme script
 common_scripts="$parent_dir/common"
