@@ -135,6 +135,39 @@ dolphin=(
     okular
 )
 
+rofi_deps=(
+	meson 
+	ninja-build 
+	pkg-config 
+	bison 
+	flex 
+	libglib2.0-dev 
+	libpango1.0-dev 
+	libcairo2-dev 
+	libgdk-pixbuf-2.0-dev 
+	libstartup-notification0-dev 
+	libxkbcommon-dev 
+	libxkbcommon-x11-dev 
+	libxcb1-dev 
+	libxcb-keysyms1-dev 
+	libxcb-xkb-dev 
+	libxcb-randr0-dev 
+	libxcb-xinerama0-dev 
+	libxcb-icccm4-dev 
+	libxcb-ewmh-dev 
+	libxcb-cursor-dev 
+	libxcb-util0-dev 
+	wayland-protocols 
+	libwayland-dev
+)
+
+awww_deps=(
+	build-essential
+	liblz4-dev
+	libdrm-dev
+	libgbm-dev
+)
+
 # url to install grimblast
 grimblast_url=https://github.com/hyprwm/contrib.git
 
@@ -146,11 +179,13 @@ done
 installble_main_pkg=($(printf "%s\n" "${main_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_other_pkg=($(printf "%s\n" "${other_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_dolphin_pkg=($(printf "%s\n" "${dolphin[@]}" | grep -vxFf "$installed_cache"))
+installble_rofi_deps=($(printf "%s\n" "${rofi_deps[@]}" | grep -vxFf "$installed_cache"))
+installble_awww_deps=($(printf "%s\n" "${awww_deps[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
 # installing necessary packages
-for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}"; do
+for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}" "${installble_rofi_deps[@]}" "${installble_awww_deps[@]}"; do
   install_package "$packages"
   if dpkg -s "$packages" &> /dev/null; then
     echo "[ DONE ] - $packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
@@ -172,70 +207,93 @@ else
 
   sleep 1
   rm -rf "$parent_dir/.cache/grimblast" 2>&1 | tee -a "$log"
+
+	if [ -f '/usr/local/bin/grimblast' ]; then
+	msg dn "Grimblast was installed successfully..."
+	printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log"
+	fi
 fi
 
-if [ -f '/usr/local/bin/grimblast' ]; then
-  msg dn "Grimblast was installed successfully..."
-  printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log"
-fi
-
-# installing rofi dependencies
-msg act "Installing rofi dependencies..."
-sudo apt-get install -y meson ninja-build pkg-config bison flex libglib2.0-dev libpango1.0-dev libcairo2-dev libgdk-pixbuf-2.0-dev libstartup-notification0-dev libxkbcommon-dev libxkbcommon-x11-dev libxcb1-dev libxcb-keysyms1-dev libxcb-xkb-dev libxcb-randr0-dev libxcb-xinerama0-dev libxcb-icccm4-dev libxcb-ewmh-dev libxcb-cursor-dev wayland-protocols libwayland-dev 2>&1 | tee -a "$log" &> /dev/null
 
 if ! command -v rofi &> /dev/null; then
   msg act "Installing rofi..."
   rofi_ver="2.0.0"
   release_url="https://github.com/davatorium/rofi/releases/download/${rofi_ver}/rofi-${rofi_ver}.tar.xz"
-  wget -O "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" "$release_url" 2>&1 | tee -a "$log" &> /dev/null
-  tar -C "$parent_dir/.cache" -xf "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" 2>&1 | tee -a "$log" &> /dev/null
+  wget -O "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" "$release_url" 2>&1 | tee -a "$log"
+  tar -C "$parent_dir/.cache" -xf "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" 2>&1 | tee -a "$log"
   cd "$parent_dir/.cache/rofi-${rofi_ver}"
   export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:${PKG_CONFIG_PATH:-}"
-  meson setup build --prefix /usr/local -Dxcb=enabled -Dwayland=enabled 2>&1 | tee -a "$log" &> /dev/null
-  ninja -C build 2>&1 | tee -a "$log" &> /dev/null
-  sudo ninja -C build install 2>&1 | tee -a "$log" &> /dev/null
-
-  sleep 1
-  rm -rf "$parent_dir/.cache/rofi-${rofi_ver}" "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" 2>&1 | tee -a "$log"
+  meson setup build --prefix /usr/local -Dxcb=enabled -Dwayland=enabled 2>&1 | tee -a "$log"
+  ninja -C build 2>&1 | tee -a "$log"
+  sudo ninja -C build install 2>&1 | tee -a "$log"
+  msg dn "rofi was installed successfully..."
+  printf "[ DONE ] - rofi was installed successfully...\n" 2>&1 | tee -a "$log"
 else
   msg dn "rofi is already installed..."
-fi
-
-if command -v rofi &> /dev/null; then
-  printf "[ DONE ] - rofi was installed successfully...\n" 2>&1 | tee -a "$log"
+  printf "[ DONE ] - rofi is already installed...\n" 2>&1 | tee -a "$log"
 fi
 
 # installing awww
-msg act "Installing awww dependencies..."
-sudo apt-get install -y cargo liblz4-dev libwayland-dev wayland-protocols 2>&1 | tee -a "$log" &> /dev/null
+if ! command -v swww &> /dev/null; then
+  msg act "Installing swww..."
 
-if ! command -v awww &> /dev/null; then
-  msg act "Installing awww..."
   awww_tag="v0.11.2"
-  git clone --recursive -b $awww_tag https://codeberg.org/LGFae/awww.git "$parent_dir/.cache/awww/" 2>&1 | tee -a "$log" &> /dev/null
-  cd "$parent_dir/.cache/awww"
-  
-  source "$HOME/.cargo/env" || true
-  cargo build --release 2>&1 | tee -a "$log" &> /dev/null
-  
-  sudo cp -r target/release/awww /usr/bin/ 2>&1 | tee -a "$log" &> /dev/null
-  sudo cp -r target/release/awww-daemon /usr/bin/ 2>&1 | tee -a "$log" &> /dev/null
-  
-  sudo mkdir -p /usr/share/bash-completion/completions 2>&1 | tee -a "$log" &> /dev/null
-  sudo cp -r completions/awww.bash /usr/share/bash-completion/completions/awww 2>&1 | tee -a "$log" &> /dev/null
-  
-  sudo mkdir -p /usr/share/zsh/site-functions 2>&1 | tee -a "$log" &> /dev/null
-  sudo cp -r completions/_awww /usr/share/zsh/site-functions/_awww 2>&1 | tee -a "$log" &> /dev/null
+  awww_dir="$parent_dir/.cache/awww"
 
-  sleep 1
-  rm -rf "$parent_dir/.cache/awww" 2>&1 | tee -a "$log"
+  # ensure cargo exists (install rustup if missing)
+  if ! command -v cargo &> /dev/null; then
+    msg act "Installing Rust (rustup)..."
+    curl https://sh.rustup.rs -sSf | sh -s -- -y 2>&1 | tee -a "$log"
+  fi
+
+  # load rust environment if available
+  if [ -f "$HOME/.cargo/env" ]; then
+    source "$HOME/.cargo/env"
+  fi
+
+  # final verification
+  if ! command -v cargo &> /dev/null; then
+    echo "[ ERROR ] cargo not found after rust setup!" | tee -a "$log"
+    exit 1
+  fi
+
+  # ensure correct rust version
+  rustup update 2>&1 | tee -a "$log"
+
+  # clone correct version
+  rm -rf "$awww_dir"
+  git clone --branch "$awww_tag" --depth=1 https://codeberg.org/LGFae/awww.git "$awww_dir" \
+    2>&1 | tee -a "$log"
+
+  cd "$awww_dir" || exit 1
+
+  # build
+  cargo build --release 2>&1 | tee -a "$log" || {
+    echo "[ ERROR ] swww build failed!" | tee -a "$log"
+    exit 1
+  }
+
+  # install binaries
+  sudo cp target/release/swww /usr/local/bin/
+  sudo cp target/release/swww-daemon /usr/local/bin/
+
+  # cleanup
+  cd ~
+  rm -rf "$awww_dir"
+
+  # verify
+  if command -v swww &> /dev/null; then
+    printf "[ DONE ] - swww was installed successfully...\n" | tee -a "$log"
+  else
+    printf "[ ERROR ] - swww installation failed!\n" | tee -a "$log"
+    exit 1
+  fi
+
 else
   msg dn "awww is already installed..."
 fi
 
-if command -v awww &> /dev/null; then
-  printf "[ DONE ] - awww was installed successfully...\n" 2>&1 | tee -a "$log"
-fi
+exit 0
 
 sleep 1 && clear
 

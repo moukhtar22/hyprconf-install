@@ -23,8 +23,8 @@ display_text() {
 '
    _______  ___  __  ___
   / __/ _ \/ _ \/  |/  /
- _\ \/ // / // / /|_/ / 
-/___/____/____/_/  /_/   
+ _\ \/ // / // / /|_/ /
+/___/____/____/_/  /_/
 
 '
 }
@@ -69,21 +69,21 @@ sddm=(
     qml-module-qtgraphicaleffects
     qml-module-qtquick-controls2
     sddm
-    qml6-module-qt5compat
+    qml6-module-qt5compat-graphicaleffects
     qml6-module-qtqml
-    qml6-module-qtsvg
-    qml6-module-qtvirtualkeyboard
+    libqt6svg6
+    qml6-module-qtquick-virtualkeyboard
     qml6-module-qtmultimedia
 )
 
 logins=(
-    lightdm 
-    gdm 
-    lxdm 
+    lightdm
+    gdm
+    lxdm
     lxdm-gtk3
 )
 
-# checking already installed packages 
+# checking already installed packages
 for skipable in "${sddm[@]}"; do
     skip_installed "$skipable"
 done
@@ -91,6 +91,9 @@ done
 to_install=($(printf "%s\n" "${sddm[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
+
+# Pre-seed debconf so apt doesn't prompt for default display manager
+echo "sddm shared/default-x-display-manager select sddm" | sudo debconf-set-selections
 
 for sddm_pkgs in "${to_install[@]}"; do
     install_package "$sddm_pkgs"
@@ -101,17 +104,20 @@ for sddm_pkgs in "${to_install[@]}"; do
     fi
 done
 
-# Check if other login managers are installed and disabling their service before enabling sddm
-# for login_manager in "${logins[@]}"; do
-#   if dpkg -s "$login_manager" &> /dev/null; then
-#     msg act "Disabling $login_manager..."
-#     sudo systemctl disable "$login_manager" 2>&1 | tee -a "$log"
-#   fi
-# done
+exit 0
 
-# msg act "Activating sddm service..."
-# sudo systemctl set-default graphical.target 2>&1 | tee -a "$log"
-# sudo systemctl enable sddm.service 2>&1 | tee -a "$log"
+# Disable other login managers if installed
+for login_manager in "${logins[@]}"; do
+    if dpkg -s "$login_manager" &> /dev/null; then
+        msg act "Disabling $login_manager..."
+        sudo systemctl disable "$login_manager" 2>&1 | tee -a "$log"
+    fi
+done
+
+# Enable sddm as the default display manager
+msg act "Activating sddm service..."
+sudo systemctl set-default graphical.target 2>&1 | tee -a "$log"
+sudo systemctl enable sddm.service 2>&1 | tee -a "$log"
 
 # run sddm theme script
 common_scripts="$parent_dir/common"
