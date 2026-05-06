@@ -179,26 +179,30 @@ if [ -f '/usr/local/bin/grimblast' ]; then
   printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log"
 fi
 
-# installing rofi-wayland dependencies
-msg act "Installing rofi-wayland dependencies..."
-sudo apt-get install -y meson ninja-build flex bison pkg-config libpango1.0-dev libcairo2-dev libglib2.0-dev libgdk-pixbuf2.0-dev libstartup-notification0-dev libxkbcommon-dev libxkbcommon-x11-dev libxcb-xkb-dev libxcb-randr0-dev libxcb-xinerama0-dev libxcb-ewmh-dev libxcb-icccm4-dev libxcb-cursor-dev libxcb-util-dev libwayland-dev wayland-protocols 2>&1 | tee -a "$log" &> /dev/null
+# installing rofi dependencies
+msg act "Installing rofi dependencies..."
+sudo apt-get install -y meson ninja-build pkg-config bison flex libglib2.0-dev libpango1.0-dev libcairo2-dev libgdk-pixbuf-2.0-dev libstartup-notification0-dev libxkbcommon-dev libxkbcommon-x11-dev libxcb1-dev libxcb-keysyms1-dev libxcb-xkb-dev libxcb-randr0-dev libxcb-xinerama0-dev libxcb-icccm4-dev libxcb-ewmh-dev libxcb-cursor-dev wayland-protocols libwayland-dev 2>&1 | tee -a "$log" &> /dev/null
 
 if ! command -v rofi &> /dev/null; then
-  msg act "Installing rofi-wayland..."
-  git clone -b wayland --depth=1 --recursive https://github.com/in0ni/rofi-wayland.git "$parent_dir/.cache/rofi-wayland/" 2>&1 | tee -a "$log" &> /dev/null
-  cd "$parent_dir/.cache/rofi-wayland"
-  meson setup build 2>&1 | tee -a "$log" &> /dev/null
+  msg act "Installing rofi..."
+  rofi_ver="2.0.0"
+  release_url="https://github.com/davatorium/rofi/releases/download/${rofi_ver}/rofi-${rofi_ver}.tar.xz"
+  wget -O "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" "$release_url" 2>&1 | tee -a "$log" &> /dev/null
+  tar -C "$parent_dir/.cache" -xf "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" 2>&1 | tee -a "$log" &> /dev/null
+  cd "$parent_dir/.cache/rofi-${rofi_ver}"
+  export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:${PKG_CONFIG_PATH:-}"
+  meson setup build --prefix /usr/local -Dxcb=enabled -Dwayland=enabled 2>&1 | tee -a "$log" &> /dev/null
   ninja -C build 2>&1 | tee -a "$log" &> /dev/null
   sudo ninja -C build install 2>&1 | tee -a "$log" &> /dev/null
 
   sleep 1
-  rm -rf "$parent_dir/.cache/rofi-wayland" 2>&1 | tee -a "$log"
+  rm -rf "$parent_dir/.cache/rofi-${rofi_ver}" "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" 2>&1 | tee -a "$log"
 else
-  msg dn "rofi-wayland is already installed..."
+  msg dn "rofi is already installed..."
 fi
 
 if command -v rofi &> /dev/null; then
-  printf "[ DONE ] - rofi-wayland was installed successfully...\n" 2>&1 | tee -a "$log"
+  printf "[ DONE ] - rofi was installed successfully...\n" 2>&1 | tee -a "$log"
 fi
 
 # installing awww
@@ -207,9 +211,24 @@ sudo apt-get install -y cargo liblz4-dev libwayland-dev wayland-protocols 2>&1 |
 
 if ! command -v awww &> /dev/null; then
   msg act "Installing awww..."
-  cargo install awww awww-daemon --git https://codeberg.org/LGFae/awww.git 2>&1 | tee -a "$log" &> /dev/null
-  sudo cp "$HOME/.cargo/bin/awww" /usr/local/bin/awww 2>&1 | tee -a "$log" &> /dev/null
-  sudo cp "$HOME/.cargo/bin/awww-daemon" /usr/local/bin/awww-daemon 2>&1 | tee -a "$log" &> /dev/null
+  awww_tag="v0.11.2"
+  git clone --recursive -b $awww_tag https://codeberg.org/LGFae/awww.git "$parent_dir/.cache/awww/" 2>&1 | tee -a "$log" &> /dev/null
+  cd "$parent_dir/.cache/awww"
+  
+  source "$HOME/.cargo/env" || true
+  cargo build --release 2>&1 | tee -a "$log" &> /dev/null
+  
+  sudo cp -r target/release/awww /usr/bin/ 2>&1 | tee -a "$log" &> /dev/null
+  sudo cp -r target/release/awww-daemon /usr/bin/ 2>&1 | tee -a "$log" &> /dev/null
+  
+  sudo mkdir -p /usr/share/bash-completion/completions 2>&1 | tee -a "$log" &> /dev/null
+  sudo cp -r completions/awww.bash /usr/share/bash-completion/completions/awww 2>&1 | tee -a "$log" &> /dev/null
+  
+  sudo mkdir -p /usr/share/zsh/site-functions 2>&1 | tee -a "$log" &> /dev/null
+  sudo cp -r completions/_awww /usr/share/zsh/site-functions/_awww 2>&1 | tee -a "$log" &> /dev/null
+
+  sleep 1
+  rm -rf "$parent_dir/.cache/awww" 2>&1 | tee -a "$log"
 else
   msg dn "awww is already installed..."
 fi

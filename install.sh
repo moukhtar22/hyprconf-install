@@ -106,15 +106,19 @@ if command -v apt-get &> /dev/null; then
 
     sleep 1
 
-    printf "${green}=>${end} Installing gum...\n"
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg &> /dev/null
-    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list &> /dev/null
-    sudo apt-get update &> /dev/null
-    sudo apt-get install -y gum &> /dev/null
+    if dpkg -s gum &> /dev/null; then
+        printf "${magenta}[ SKIP ]${end} Skipping gum, it was already installed..\n"
+    else
+        printf "${green}=>${end} Installing gum...\n"
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor --yes -o /etc/apt/keyrings/charm.gpg &> /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list &> /dev/null
+        sudo apt-get update &> /dev/null
+        sudo apt-get install -y gum &> /dev/null
+    fi
 
-    if command -v gum &> /dev/null; then
-        printf "${cyan}::${end} Successfully installed ${cyan}gum${end}...\n"
+    if dpkg -s gum &> /dev/null; then
+        printf "${cyan}::${end} Gum was installed successfully!\n"
     fi
 fi
 
