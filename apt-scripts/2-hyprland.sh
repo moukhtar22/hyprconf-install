@@ -129,9 +129,9 @@ fi
 if ! command -v hyprsunset &> /dev/null; then
     msg act "Building hyprsunset..."
     if [[ "$is_debian_13" == true ]]; then
-        sudo apt-get install -y -t trixie-backports cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev hyprland-protocols hyprwayland-scanner
+        sudo apt-get install -y -t trixie-backports cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev hyprland-protocols hyprwayland-scanner libhyprlang-dev libhyprutils-dev
     else
-        sudo apt-get install -y cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev hyprland-protocols hyprwayland-scanner
+        sudo apt-get install -y cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev hyprland-protocols hyprwayland-scanner libhyprlang-dev libhyprutils-dev
     fi
     git clone --depth=1 https://github.com/hyprwm/hyprsunset.git "$parent_dir/.cache/hyprsunset" 2>&1 | tee -a "$log"
     cd "$parent_dir/.cache/hyprsunset"
@@ -159,12 +159,12 @@ else
 fi
 
 # building hyprcursor
-if ! command -v hyprcursor &> /dev/null; then
+if ! command -v hyprcursor-util &> /dev/null; then
     msg act "Building hyprcursor..."
     if [[ "$is_debian_13" == true ]]; then
-        sudo apt-get install -y -t trixie-backports cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev
+        sudo apt-get install -y -t trixie-backports cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev libhyprlang-dev libhyprutils-dev
     else
-        sudo apt-get install -y cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev
+        sudo apt-get install -y cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev libhyprlang-dev libhyprutils-dev
     fi
     git clone --depth=1 https://github.com/hyprwm/hyprcursor.git "$parent_dir/.cache/hyprcursor" 2>&1 | tee -a "$log"
     cd "$parent_dir/.cache/hyprcursor"
@@ -174,7 +174,7 @@ if ! command -v hyprcursor &> /dev/null; then
     cd ~
     rm -rf "$parent_dir/.cache/hyprcursor"
 
-    if command -v hyprcursor &> /dev/null; then
+    if command -v hyprcursor-util &> /dev/null; then
         msg dn "hyprcursor was installed successfully!"
     else
         msg err "hyprcursor failed to install..."
