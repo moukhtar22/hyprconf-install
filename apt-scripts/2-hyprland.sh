@@ -111,10 +111,9 @@ done
 # pyprland's executable is 'pypr', not 'pyprland'
 if ! command -v pypr &> /dev/null && [ ! -x "$HOME/.local/bin/pypr" ]; then
     msg act "Installing pyprland..."
-    sudo apt-get install -y python3-pip pipx
-    pipx install pyprland 2>&1 | tee -a "$log"
-    pipx ensurepath 2>&1 | tee -a "$log"
-    
+    sudo apt-get install -y python3-pip python3-aiofiles
+    pip install --user pyprland 2>&1 | tee -a "$log"
+
     export PATH="$PATH:$HOME/.local/bin"
 
     if command -v pypr &> /dev/null; then
