@@ -66,9 +66,6 @@ _hypr=(
     hyprland
     hyprlock
     hypridle
-    hyprcursor
-    hyprsunset
-    pyprland
 )
 
 # checking already installed packages 
@@ -109,5 +106,61 @@ for hypr_pkgs in "${to_install[@]}"; do
         echo "[ ERROR ] - Sorry, could not install '$hypr_pkgs'" 2>&1 | tee -a "$log" &> /dev/null
     fi
 done
+
+# installing pyprland
+if ! command -v pypr &> /dev/null; then
+    msg act "Installing pyprland..."
+    sudo apt-get install -y python3-pip pipx
+    pipx install pyprland 2>&1 | tee -a "$log"
+    pipx ensurepath 2>&1 | tee -a "$log"
+
+    if command -v pypr &> /dev/null; then
+        msg dn "pyprland was installed successfully!"
+    else
+        msg err "pyprland failed to install..."
+    fi
+else
+    msg dn "pyprland is already installed..."
+fi
+
+# building hyprsunset
+if ! command -v hyprsunset &> /dev/null; then
+    msg act "Building hyprsunset..."
+    sudo apt-get install -y cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev
+    git clone --depth=1 https://github.com/hyprwm/hyprsunset.git "$parent_dir/.cache/hyprsunset" 2>&1 | tee -a "$log"
+    cd "$parent_dir/.cache/hyprsunset"
+    cmake -B build 2>&1 | tee -a "$log"
+    sudo cmake --build build --target install 2>&1 | tee -a "$log"
+    cd ~
+    rm -rf "$parent_dir/.cache/hyprsunset"
+
+    if command -v hyprsunset &> /dev/null; then
+        msg dn "hyprsunset was installed successfully!"
+    else
+        msg err "hyprsunset failed to install..."
+    fi
+else
+    msg dn "hyprsunset is already installed..."
+fi
+
+# building hyprcursor
+if ! command -v hyprcursor &> /dev/null; then
+    msg act "Building hyprcursor..."
+    sudo apt-get install -y cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev
+    git clone --depth=1 https://github.com/hyprwm/hyprcursor.git "$parent_dir/.cache/hyprcursor" 2>&1 | tee -a "$log"
+    cd "$parent_dir/.cache/hyprcursor"
+    cmake -B build 2>&1 | tee -a "$log"
+    sudo cmake --build build --target install 2>&1 | tee -a "$log"
+    cd ~
+    rm -rf "$parent_dir/.cache/hyprcursor"
+
+    if command -v hyprcursor &> /dev/null; then
+        msg dn "hyprcursor was installed successfully!"
+    else
+        msg err "hyprcursor failed to install..."
+    fi
+else
+    msg dn "hyprcursor is already installed..."
+fi
 
 sleep 1 && clear

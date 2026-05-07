@@ -103,6 +103,7 @@ main_packages=(
     qt6ct
     libqt6svg6
     ripgrep
+    rofi-wayland
     slurp
     sway-notification-center
     tar
@@ -135,31 +136,7 @@ dolphin=(
     okular
 )
 
-rofi_deps=(
-	meson 
-	ninja-build 
-	pkg-config 
-	bison 
-	flex 
-	libglib2.0-dev 
-	libpango1.0-dev 
-	libcairo2-dev 
-	libgdk-pixbuf-2.0-dev 
-	libstartup-notification0-dev 
-	libxkbcommon-dev 
-	libxkbcommon-x11-dev 
-	libxcb1-dev 
-	libxcb-keysyms1-dev 
-	libxcb-xkb-dev 
-	libxcb-randr0-dev 
-	libxcb-xinerama0-dev 
-	libxcb-icccm4-dev 
-	libxcb-ewmh-dev 
-	libxcb-cursor-dev 
-	libxcb-util0-dev 
-	wayland-protocols 
-	libwayland-dev
-)
+
 
 awww_deps=(
 	build-essential
@@ -179,13 +156,12 @@ done
 installble_main_pkg=($(printf "%s\n" "${main_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_other_pkg=($(printf "%s\n" "${other_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_dolphin_pkg=($(printf "%s\n" "${dolphin[@]}" | grep -vxFf "$installed_cache"))
-installble_rofi_deps=($(printf "%s\n" "${rofi_deps[@]}" | grep -vxFf "$installed_cache"))
 installble_awww_deps=($(printf "%s\n" "${awww_deps[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
 # installing necessary packages
-for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}" "${installble_rofi_deps[@]}" "${installble_awww_deps[@]}"; do
+for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}" "${installble_awww_deps[@]}"; do
   install_package "$packages"
   if dpkg -s "$packages" &> /dev/null; then
     echo "[ DONE ] - $packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
@@ -215,23 +191,7 @@ else
 fi
 
 
-if ! command -v rofi &> /dev/null; then
-  msg act "Installing rofi..."
-  rofi_ver="2.0.0"
-  release_url="https://github.com/davatorium/rofi/releases/download/${rofi_ver}/rofi-${rofi_ver}.tar.xz"
-  wget -O "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" "$release_url" 2>&1 | tee -a "$log"
-  tar -C "$parent_dir/.cache" -xf "$parent_dir/.cache/rofi-${rofi_ver}.tar.xz" 2>&1 | tee -a "$log"
-  cd "$parent_dir/.cache/rofi-${rofi_ver}"
-  export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:${PKG_CONFIG_PATH:-}"
-  meson setup build --prefix /usr/local -Dxcb=enabled -Dwayland=enabled 2>&1 | tee -a "$log"
-  ninja -C build 2>&1 | tee -a "$log"
-  sudo ninja -C build install 2>&1 | tee -a "$log"
-  msg dn "rofi was installed successfully..."
-  printf "[ DONE ] - rofi was installed successfully...\n" 2>&1 | tee -a "$log"
-else
-  msg dn "rofi is already installed..."
-  printf "[ DONE ] - rofi is already installed...\n" 2>&1 | tee -a "$log"
-fi
+
 
 # installing awww
 if ! command -v swww &> /dev/null; then
