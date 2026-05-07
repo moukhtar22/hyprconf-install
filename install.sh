@@ -95,14 +95,19 @@ fi
 # only for debian/ubuntu
 if command -v apt-get &> /dev/null; then
 
-    if dpkg -s git &> /dev/null; then
-        printf "${magenta}[ Skip ]${end} Skipping git, it's already installed...\n"
-    else
-        printf "${green}=>${end} Installing git...\n"
-        if sudo apt-get install -y git; then
-            printf "${cyan}::${end} Successfully installed ${cyan}git${end}...\n"
+    pkgs=(git curl)
+
+    for pkg in "${pkgs[@]}"; do
+
+        if dpkg -s "$pkg" &> /dev/null; then
+            printf "${magenta}[ Skip ]${end} Skipping $pkg, it's already installed...\n"
+        else
+            printf "${green}=>${end} Installing $pkg...\n"
+            if sudo apt-get install -y $pkg; then
+                printf "${cyan}::${end} Successfully installed ${cyan}$pkg${end}...\n"
+            fi
         fi
-    fi
+    done
 
     sleep 1
 
