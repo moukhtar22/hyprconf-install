@@ -103,7 +103,7 @@ main_packages=(
     qt6ct
     libqt6svg6
     ripgrep
-    rofi-wayland
+    rofi
     slurp
     sway-notification-center
     tar
@@ -138,12 +138,6 @@ dolphin=(
 
 
 
-awww_deps=(
-	build-essential
-	liblz4-dev
-	libdrm-dev
-	libgbm-dev
-)
 
 # url to install grimblast
 grimblast_url=https://github.com/hyprwm/contrib.git
@@ -156,12 +150,12 @@ done
 installble_main_pkg=($(printf "%s\n" "${main_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_other_pkg=($(printf "%s\n" "${other_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_dolphin_pkg=($(printf "%s\n" "${dolphin[@]}" | grep -vxFf "$installed_cache"))
-installble_awww_deps=($(printf "%s\n" "${awww_deps[@]}" | grep -vxFf "$installed_cache"))
+
 
 printf "\n\n"
 
 # installing necessary packages
-for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}" "${installble_awww_deps[@]}"; do
+for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}"; do
   install_package "$packages"
   if dpkg -s "$packages" &> /dev/null; then
     echo "[ DONE ] - $packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
@@ -186,75 +180,11 @@ else
 
 	if [ -f '/usr/local/bin/grimblast' ]; then
 	msg dn "Grimblast was installed successfully..."
-	printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log"
+	printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log" &> /dev/null
 	fi
 fi
-
-
-
-
-# installing awww
-if ! command -v swww &> /dev/null; then
-  msg act "Installing swww..."
-
-  awww_tag="v0.11.2"
-  awww_dir="$parent_dir/.cache/awww"
-
-  # ensure cargo exists (install rustup if missing)
-  if ! command -v cargo &> /dev/null; then
-    msg act "Installing Rust (rustup)..."
-    curl https://sh.rustup.rs -sSf | sh -s -- -y 2>&1 | tee -a "$log"
-  fi
-
-  # load rust environment if available
-  if [ -f "$HOME/.cargo/env" ]; then
-    source "$HOME/.cargo/env"
-  fi
-
-  # final verification
-  if ! command -v cargo &> /dev/null; then
-    echo "[ ERROR ] cargo not found after rust setup!" | tee -a "$log"
-    exit 1
-  fi
-
-  # ensure correct rust version
-  rustup update 2>&1 | tee -a "$log"
-
-  # clone correct version
-  rm -rf "$awww_dir"
-  git clone --branch "$awww_tag" --depth=1 https://codeberg.org/LGFae/awww.git "$awww_dir" \
-    2>&1 | tee -a "$log"
-
-  cd "$awww_dir" || exit 1
-
-  # build
-  cargo build --release 2>&1 | tee -a "$log" || {
-    echo "[ ERROR ] swww build failed!" | tee -a "$log"
-    exit 1
-  }
-
-  # install binaries
-  sudo cp target/release/swww /usr/local/bin/
-  sudo cp target/release/swww-daemon /usr/local/bin/
-
-  # cleanup
-  cd ~
-  rm -rf "$awww_dir"
-
-  # verify
-  if command -v swww &> /dev/null; then
-    printf "[ DONE ] - swww was installed successfully...\n" | tee -a "$log"
-  else
-    printf "[ ERROR ] - swww installation failed!\n" | tee -a "$log"
-    exit 1
-  fi
-
-else
-  msg dn "awww is already installed..."
-fi
-
-exit 0
 
 sleep 1 && clear
 
 "$dir/pywal.sh" 2>&1 | tee -a >(sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> "$log")
+"$dir/3.1-swww.sh" 2>&1 | tee -a >(sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> "$log")
