@@ -108,11 +108,14 @@ for hypr_pkgs in "${to_install[@]}"; do
 done
 
 # installing pyprland
-if ! command -v pypr &> /dev/null; then
+# pyprland's executable is 'pypr', not 'pyprland'
+if ! command -v pypr &> /dev/null && [ ! -x "$HOME/.local/bin/pypr" ]; then
     msg act "Installing pyprland..."
     sudo apt-get install -y python3-pip pipx
     pipx install pyprland 2>&1 | tee -a "$log"
     pipx ensurepath 2>&1 | tee -a "$log"
+    
+    export PATH="$PATH:$HOME/.local/bin"
 
     if command -v pypr &> /dev/null; then
         msg dn "pyprland was installed successfully!"
@@ -126,11 +129,24 @@ fi
 # building hyprsunset
 if ! command -v hyprsunset &> /dev/null; then
     msg act "Building hyprsunset..."
-    sudo apt-get install -y cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev
+    if [[ "$is_debian_13" == true ]]; then
+        sudo apt-get install -y -t trixie-backports cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev hyprland-protocols hyprwayland-scanner
+    else
+        sudo apt-get install -y cmake pkg-config libwayland-dev wayland-protocols libxkbcommon-dev hyprland-protocols hyprwayland-scanner
+    fi
     git clone --depth=1 https://github.com/hyprwm/hyprsunset.git "$parent_dir/.cache/hyprsunset" 2>&1 | tee -a "$log"
     cd "$parent_dir/.cache/hyprsunset"
-    cmake -B build 2>&1 | tee -a "$log"
-    sudo cmake --build build --target install 2>&1 | tee -a "$log"
+    
+    if [ -f CMakeLists.txt ]; then
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release 2>&1 | tee -a "$log"
+        cmake --build build -j "$(nproc 2>/dev/null || getconf _NPROCESSORS_CONF)" 2>&1 | tee -a "$log"
+        sudo cmake --install build 2>&1 | tee -a "$log"
+    elif [ -f meson.build ]; then
+        sudo apt-get install -y meson ninja-build
+        meson setup build --buildtype=release 2>&1 | tee -a "$log"
+        meson compile -C build 2>&1 | tee -a "$log"
+        sudo meson install -C build 2>&1 | tee -a "$log"
+    fi
     cd ~
     rm -rf "$parent_dir/.cache/hyprsunset"
 
@@ -146,11 +162,16 @@ fi
 # building hyprcursor
 if ! command -v hyprcursor &> /dev/null; then
     msg act "Building hyprcursor..."
-    sudo apt-get install -y cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev
+    if [[ "$is_debian_13" == true ]]; then
+        sudo apt-get install -y -t trixie-backports cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev
+    else
+        sudo apt-get install -y cmake pkg-config libzip-dev librsvg2-dev libtomlplusplus-dev libcairo2-dev
+    fi
     git clone --depth=1 https://github.com/hyprwm/hyprcursor.git "$parent_dir/.cache/hyprcursor" 2>&1 | tee -a "$log"
     cd "$parent_dir/.cache/hyprcursor"
-    cmake -B build 2>&1 | tee -a "$log"
-    sudo cmake --build build --target install 2>&1 | tee -a "$log"
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -S . -B build 2>&1 | tee -a "$log"
+    cmake --build build --config Release --target all -j"$(nproc 2>/dev/null || getconf _NPROCESSORS_CONF)" 2>&1 | tee -a "$log"
+    sudo cmake --install build 2>&1 | tee -a "$log"
     cd ~
     rm -rf "$parent_dir/.cache/hyprcursor"
 
