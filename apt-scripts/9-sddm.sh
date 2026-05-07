@@ -83,6 +83,16 @@ logins=(
     lxdm-gtk3
 )
 
+
+# Disable other login managers if installed
+for login_manager in "${logins[@]}"; do
+    if dpkg -s "$login_manager" &> /dev/null; then
+        msg att "$login_manager Login Manager found. Won't install SDDM here."
+
+        exit 0
+    fi
+done
+
 # checking already installed packages
 for skipable in "${sddm[@]}"; do
     skip_installed "$skipable"
