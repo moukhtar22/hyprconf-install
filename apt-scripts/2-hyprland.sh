@@ -107,6 +107,8 @@ for hypr_pkgs in "${to_install[@]}"; do
     fi
 done
 
+sudo apt install hyprland-guiutils -y && msg dn "hyprland-guiutils was installed successfully!" && echo "[ DONE ] hyprland-guiutils was installed sucessfully!" 2>&1 | tee -a "$log" &> /dev/null
+
 # installing pyprland
 # pyprland's executable is 'pypr', not 'pyprland'
 if ! command -v pypr &> /dev/null && [ ! -x "$HOME/.local/bin/pypr" ]; then
