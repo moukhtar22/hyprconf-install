@@ -114,8 +114,6 @@ for sddm_pkgs in "${to_install[@]}"; do
     fi
 done
 
-exit 0
-
 # Disable other login managers if installed
 for login_manager in "${logins[@]}"; do
     if dpkg -s "$login_manager" &> /dev/null; then
