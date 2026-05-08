@@ -179,8 +179,8 @@ else
   rm -rf "$parent_dir/.cache/grimblast" 2>&1 | tee -a "$log"
 
 	if [ -f '/usr/local/bin/grimblast' ]; then
-	msg dn "Grimblast was installed successfully..."
-	printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log" &> /dev/null
+    msg dn "Grimblast was installed successfully..."
+    printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log" &> /dev/null
 	fi
 fi
 

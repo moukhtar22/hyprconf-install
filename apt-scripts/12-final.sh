@@ -58,11 +58,11 @@ checkup=(
     hyprland
     hyprlock
     hypridle
-    hyprcursor
+    hyprland-guiutils
+    hyprcursor-util
     hyprsunset
-    pyprland
+    pype
     curl
-    # dunst
     fastfetch
     ffmpeg
     git
@@ -84,8 +84,7 @@ checkup=(
     pavucontrol
     pipewire-alsa
     pipewire-bin
-    pipewire-pulse
-    # polkit-kde-agent
+    pipewire-pulses
     power-profiles-daemon
     pulseaudio-utils
     python3-requests
@@ -114,6 +113,7 @@ checkup=(
     mpv-mpris
     nwg-look
     pamixer
+    wlogout
     ark
     crudini
     dolphin
@@ -168,6 +168,11 @@ done
 # checking if pywal is installed
 if ! command -v wal &> /dev/null; then
     sudo pip install pywal --break-system-packages 2>&1 | tee -a "$log" &> /dev/null
+fi
+
+# checking if swww is installed
+if ! command -v swww &> /dev/null; then
+    "$dir/3.1-swww.sh"
 fi
 
 sleep 1 && clear

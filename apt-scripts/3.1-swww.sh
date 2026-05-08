@@ -34,7 +34,9 @@ if ! command -v swww &> /dev/null; then
   # ensure cargo exists (install rustup if missing)
   if ! command -v cargo &> /dev/null; then
     msg act "Installing Rust (rustup)..."
-    curl https://sh.rustup.rs -sSf | sh -s -- -y 2>&1 | tee -a "$log"
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
+    sh rustup.sh -y 2>&1 | tee -a "$log"
+    rm rustup.sh
   fi
 
   # load rust environment if available
