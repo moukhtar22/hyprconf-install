@@ -61,7 +61,7 @@ checkup=(
     hyprland-guiutils
     hyprcursor-util
     hyprsunset
-    pype
+    pypr
     curl
     fastfetch
     ffmpeg
@@ -84,7 +84,7 @@ checkup=(
     pavucontrol
     pipewire-alsa
     pipewire-bin
-    pipewire-pulses
+    pipewire-pulse
     power-profiles-daemon
     pulseaudio-utils
     python3-requests
@@ -108,17 +108,16 @@ checkup=(
     btop
     cava
     cliphist
-    partitionmanager
+    gnome-disk-utility
     mpv
     mpv-mpris
     nwg-look
     pamixer
     wlogout
-    ark
     crudini
-    dolphin
-    gwenview
-    okular
+    thunar
+    thunar-archive-plugin
+    file-roller
     fonts-font-awesome
     fonts-noto-cjk
     fonts-noto-color-emoji
@@ -132,7 +131,6 @@ checkup=(
     libqt6svg6
     xfce-polkit
     xdg-desktop-portal-hyprland
-    xdg-desktop-portal-kde
 )
 
 

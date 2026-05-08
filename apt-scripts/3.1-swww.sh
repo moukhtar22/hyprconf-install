@@ -44,6 +44,9 @@ if ! command -v swww &> /dev/null; then
     source "$HOME/.cargo/env"
   fi
 
+  # ensure cargo bin is in PATH for this session
+  export PATH="$HOME/.cargo/bin:$PATH"
+
   # final verification
   if ! command -v cargo &> /dev/null; then
     echo "[ ERROR ] cargo not found after rust setup!" | tee -a "$log"

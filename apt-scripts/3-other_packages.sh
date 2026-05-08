@@ -120,7 +120,7 @@ other_packages=(
     btop
     cava
     cliphist
-    partitionmanager
+    gnome-disk-utility
     mpv
     mpv-mpris
     nwg-look
@@ -128,12 +128,11 @@ other_packages=(
     wlogout
 )
 
-dolphin=(
-    ark
+file_utils=(
     crudini
-    dolphin
-    gwenview
-    okular
+    thunar
+    thunar-archive-plugin
+    file-roller
 )
 
 
@@ -143,19 +142,19 @@ dolphin=(
 grimblast_url=https://github.com/hyprwm/contrib.git
 
 # checking already installed packages 
-for skipable in "${main_packages[@]}" "${other_packages[@]}" "${dolphin[@]}"; do
+for skipable in "${main_packages[@]}" "${other_packages[@]}" "${file_utils[@]}"; do
     skip_installed "$skipable"
 done
 
 installble_main_pkg=($(printf "%s\n" "${main_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_other_pkg=($(printf "%s\n" "${other_packages[@]}" | grep -vxFf "$installed_cache"))
-installble_dolphin_pkg=($(printf "%s\n" "${dolphin[@]}" | grep -vxFf "$installed_cache"))
+installble_file_utils_pkg=($(printf "%s\n" "${file_utils[@]}" | grep -vxFf "$installed_cache"))
 
 
 printf "\n\n"
 
 # installing necessary packages
-for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}"; do
+for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_file_utils_pkg[@]}"; do
   install_package "$packages"
   if dpkg -s "$packages" &> /dev/null; then
     echo "[ DONE ] - $packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null

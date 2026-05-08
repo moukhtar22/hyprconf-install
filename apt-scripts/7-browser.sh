@@ -141,16 +141,16 @@ case $browser in
         fi
         ;;
     "Firefox")
-        if command -v firefox &> /dev/null; then
-            msg skp "Chromium is already installed. Skipping"
+        if command -v firefox-esr &> /dev/null || command -v firefox &> /dev/null; then
+            msg skp "Firefox is already installed. Skipping"
             exit 0
         else
-            install_package firefox
+            install_package firefox-esr
         fi
 
         sleep 1
 
-        if [[ -n "$(command -v firefox)" ]]; then
+        if [[ -n "$(command -v firefox-esr)" ]] || [[ -n "$(command -v firefox)" ]]; then
             msg dn "Firefox was installed successfully!"
             echo "[ DONE ] - Firefox was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
         else 
