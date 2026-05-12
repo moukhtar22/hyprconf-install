@@ -112,7 +112,7 @@ main_packages=(
     wget
     wl-clipboard
     xdg-utils
-    xfce-polkit
+    polkit-kde-agent
 )
 
 # other necessary packages

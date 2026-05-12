@@ -129,7 +129,7 @@ checkup=(
     qt6-qt5compat 
     qt6-qtdeclarative 
     libqt6svg6
-    xfce-polkit
+    polkit-kde-agent
     xdg-desktop-portal-hyprland
 )
 
