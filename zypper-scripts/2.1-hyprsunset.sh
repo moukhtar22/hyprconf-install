@@ -53,6 +53,13 @@ mkdir -p "$log_dir"
 touch "$log"
 
 
+# Check if hyprsunset is already available as a package first
+if sudo zypper se -i hyprsunset &> /dev/null; then
+    msg skp "hyprsunset is already installed. Skipping..."
+    sleep 1 && clear
+    exit 0
+fi
+
 if ! sudo zypper se -i git &> /dev/null; then
     install_package git
 fi
@@ -80,7 +87,7 @@ if git clone --depth=1 https://github.com/hyprwm/hyprsunset "$parent_dir/.cache/
         msg dn "Hyprsunset was installed successfully!"
         echo "[ DONE ] - Hyprsunset was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
-        msg err "$1 failed to install. Maybe there was an issue..."
+        msg err "Hyprsunset failed to install. Maybe there was an issue..."
         echo "[ ERROR ] - Sorry, could not install Hyprsunset.\n" 2>&1 | tee -a "$log" &> /dev/null
     fi 
 fi

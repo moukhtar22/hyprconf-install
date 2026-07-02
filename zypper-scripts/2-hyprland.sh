@@ -49,8 +49,18 @@ log="$log_dir/hyprland-$(date +%d-%m-%y).log"
 cache_dir="$parent_dir/.cache"
 installed_cache="$cache_dir/installed_packages"
 
-mkdir -p "$log_dir"
-touch "$log"
+if [[ -f "$log" ]]; then
+    errors=$(grep "ERROR" "$log")
+    last_installed=$(grep "hyprpolkitagent" "$log" | awk {'print $2'})
+    if [[ -z "$errors" && "$last_installed" == "DONE" ]]; then
+        msg skp "Skipping this script. No need to run it again..."
+        sleep 1
+        exit 0
+    fi
+else
+    mkdir -p "$log_dir"
+    touch "$log"
+fi
 
 hypr_pkgs=(
     hyprland
@@ -60,28 +70,29 @@ hypr_pkgs=(
     wayland-protocols-devel
     hyprutils-devel
     hyprwayland-scanner
+    hyprlock
+    hypridle
+    hyprpolkitagent
 )
 
-hypr_others=(
+hypr_python=(
   python311-aiofiles
   python312-pip
   python312-pipx
   python-base
-  hyprlock
-  hypridle
-  hyprpolkitagent
 )
 
 # checking already installed packages 
-for skipable in "${hypr_pkgs[@]}"; do
+for skipable in "${hypr_pkgs[@]}" "${hypr_python[@]}"; do
     skip_installed "$skipable"
 done
 
 to_install=($(printf "%s\n" "${hypr_pkgs[@]}" | grep -vxFf "$installed_cache"))
+to_install_python=($(printf "%s\n" "${hypr_python[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
-# Hyprland
+# Hyprland and related packages
 for packages in "${to_install[@]}"; do
   install_package "$packages"
 
@@ -92,8 +103,9 @@ for packages in "${to_install[@]}"; do
     fi
 done
 
-for others in "${hypr_others[@]}"; do
-  install_package_opi "$others"
+# Python helpers
+for others in "${to_install_python[@]}"; do
+  install_package "$others"
 
     if sudo zypper se -i "$others" &> /dev/null ; then
         echo "[ DONE ] - $others was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
@@ -102,18 +114,28 @@ for others in "${hypr_others[@]}"; do
     fi
 done
 
-# Check if the file exists and delete it
-pypr="/usr/local/bin/pypr"
-if [ -f "$pypr" ]; then
-    sudo rm "$pypr"
-fi
-
 # Hyprland Plugins
-# pyprland https://github.com/hyprland-community/pyprland installing using python
-msg act "Installing pyprland..."
+# pyprland https://github.com/hyprland-community/pyprland
+# Install via pipx if available (installed via python312-pipx above)
+if ! command -v pypr &> /dev/null && [ ! -x "$HOME/.local/bin/pypr" ]; then
+    msg act "Installing pyprland..."
 
-curl https://raw.githubusercontent.com/hyprland-community/pyprland/main/scripts/get-pypr | sh  2>&1 | tee -a "$LOG"
+    if command -v pipx &> /dev/null; then
+        pipx install pyprland 2>&1 | tee -a "$log"
+    else
+        msg err "pipx not found. Cannot install pyprland automatically."
+        echo "[ ERROR ] - pipx not found, skipping pyprland install" 2>&1 | tee -a "$log" &> /dev/null
+    fi
 
-sudo pip install pyprland --break-system-packages 2>&1 | tee -a "$LOG" 
+    if command -v pypr &> /dev/null || [ -x "$HOME/.local/bin/pypr" ]; then
+        msg dn "pyprland was installed successfully!"
+        echo "[ DONE ] - pyprland was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
+    else
+        msg err "pyprland failed to install..."
+        echo "[ ERROR ] - pyprland failed to install" 2>&1 | tee -a "$log" &> /dev/null
+    fi
+else
+    msg skp "pyprland is already installed. Skipping..."
+fi
 
 sleep 1 && clear

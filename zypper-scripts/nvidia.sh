@@ -97,7 +97,7 @@ sudo zypper install-new-recommends --repo NVIDIA 2>&1 | tee -a "$log"
     if sudo zypper se -i "$nvidia_packages" &> /dev/null ; then
         echo "[ DONE ] - $nvidia_packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
-        echo "[ ERROR ] - Could not install $NVIDIA..." 2>&1 | tee -a "$log" &> /dev/null
+        echo "[ ERROR ] - Could not install $nvidia_packages..." 2>&1 | tee -a "$log" &> /dev/null
     fi
  done
 
@@ -107,7 +107,7 @@ sudo zypper install-new-recommends --repo NVIDIA 2>&1 | tee -a "$log"
     if sudo zypper se -i "$nvidia_packages" &> /dev/null ; then
         echo "[ DONE ] - $nvidia_packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
-        echo "[ ERROR ] - Could not install $NVIDIA..." 2>&1 | tee -a "$log" &> /dev/null
+        echo "[ ERROR ] - Could not install $nvidia_packages..." 2>&1 | tee -a "$log" &> /dev/null
     fi
  done
 

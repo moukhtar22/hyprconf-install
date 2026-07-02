@@ -22,7 +22,7 @@ source "$parent_dir/interaction_fn.sh"
 
 ###------ Startup ------###
 
-# skip already insalled packages
+# skip already installed packages
 skip_installed() {
 
     [[ ! -f "$installed_cache" ]] && touch "$installed_cache"
