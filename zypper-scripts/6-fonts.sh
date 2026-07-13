@@ -3,7 +3,7 @@
 #### Advanced Hyprland Installation Script by ####
 #### Shell Ninja ( https://github.com/shell-ninja ) ####
 
-# color defination
+# color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -43,14 +43,20 @@ source "$parent_dir/interaction_fn.sh"
 
 # log directory
 log_dir="$parent_dir/Logs"
-log="$log_dir/hyprland-$(date +%d-%m-%y).log"
+log="$log_dir/fonts-$(date +%d-%m-%y).log"
 
-# skip installed cache
-cache_dir="$parent_dir/.cache"
-installed_cache="$cache_dir/installed_packages"
-
-mkdir -p "$log_dir"
-touch "$log"
+if [[ -f "$log" ]]; then
+    errors=$(grep "ERROR" "$log")
+    finished=$(grep -c "DONE" "$log")
+    if [[ -z "$errors" && "$finished" -gt 0 ]]; then
+        msg skp "Skipping this script. No need to run it again..."
+        sleep 1
+        exit 0
+    fi
+else
+    mkdir -p "$log_dir"
+    touch "$log"
+fi
 
 # installable fonts will be here
 fonts=(
@@ -77,9 +83,9 @@ for font in "${to_install[@]}"; do
   install_package "$font"
 
     if sudo zypper se -i "$font" &> /dev/null ; then
-        echo "[ DONE ] - $font was installed successfully!" 2>&1 | tee -a "$log" &>> /dev/null
+        echo "[ DONE ] - $font was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
-        echo "[ ERROR ] - Could not install $font..." 2>&1 | tee -a "$log" &>> /dev/null
+        echo "[ ERROR ] - Could not install $font..." 2>&1 | tee -a "$log" &> /dev/null
     fi
 done
 

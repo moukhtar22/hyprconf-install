@@ -28,7 +28,7 @@ skip_installed() {
 
     [[ ! -f "$installed_cache" ]] && touch "$installed_cache"
 
-    if rpm -q "$1" &> /dev/null; then
+    if dpkg -s "$1" &> /dev/null; then
         msg skp "$1 is already installed. Skipping..." && sleep 0.1
         if ! grep -qx "$1" "$installed_cache"; then
             echo "$1" >> "$installed_cache"
@@ -40,9 +40,19 @@ skip_installed() {
 install_package() {
 
     msg act "Installing $1..."
-    sudo dnf install -y "$1"
+
+    is_debian_13=false
+    if grep -qiE 'trixie|version_id="?13"?' /etc/os-release 2>/dev/null; then
+        is_debian_13=true
+    fi
+
+    if [[ "$is_debian_13" == true ]]; then
+        sudo apt-get install -y -t trixie-backports "$1" || sudo apt-get install -y "$1"
+    else
+        sudo apt-get install -y "$1"
+    fi
     
-    if rpm -q "$1" &> /dev/null ; then
+    if dpkg -s "$1" &> /dev/null ; then
         msg dn "$1 was installed successfully!"
     else
         msg err "$1 failed to install. Maybe there was an issue..."

@@ -45,7 +45,7 @@ source "$parent_dir/interaction_fn.sh"
 
 # log dir
 log_dir="$parent_dir/Logs"
-log="$log_dir/copr-$(date +%d-%m-%y).log"
+log="$log_dir/apt-repo-$(date +%d-%m-%y).log"
 
 # checking if the script already ran
 if [[ -f "$log" ]]; then
@@ -61,21 +61,7 @@ else
 fi
 
 
-# List of COPR repositories to be added and enabled
-copr_repos=(
-    solopasha/hyprland
-    tofik/nwg-shell
-    lihaohong/yazi
-    erikreider/SwayNotificationCenter  
-    alternateved/eza
-    jkinred/satty
-)
+msg act "Updating APT repositories..."
+sudo apt-get update 2>&1 | tee -a "$log" || { msg err "Failed to update apt repositories."; exit 1; }
 
-# enabling 3rd party repo
-install_package https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm 2>&1 | tee -a "$log"
-
-
-# Enable COPR Repositories 
-for repo in "${copr_repos[@]}";do 
-  sudo dnf copr enable -y "$repo" 2>&1 | tee -a "$log" || { msg err "Failed to enable necessary copr repos."; exit 1; }
-done
+msg dn "Repositories updated successfully."

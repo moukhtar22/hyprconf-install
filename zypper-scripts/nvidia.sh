@@ -5,7 +5,7 @@
 #### Advanced Hyprland Installation Script by ####
 #### Shell Ninja ( https://github.com/shell-ninja ) ####
 
-# color defination
+# color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -97,7 +97,7 @@ sudo zypper install-new-recommends --repo NVIDIA 2>&1 | tee -a "$log"
     if sudo zypper se -i "$nvidia_packages" &> /dev/null ; then
         echo "[ DONE ] - $nvidia_packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
-        echo "[ ERROR ] - Could not install $NVIDIA..." 2>&1 | tee -a "$log" &> /dev/null
+        echo "[ ERROR ] - Could not install $nvidia_packages..." 2>&1 | tee -a "$log" &> /dev/null
     fi
  done
 
@@ -107,7 +107,7 @@ sudo zypper install-new-recommends --repo NVIDIA 2>&1 | tee -a "$log"
     if sudo zypper se -i "$nvidia_packages" &> /dev/null ; then
         echo "[ DONE ] - $nvidia_packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
-        echo "[ ERROR ] - Could not install $NVIDIA..." 2>&1 | tee -a "$log" &> /dev/null
+        echo "[ ERROR ] - Could not install $nvidia_packages..." 2>&1 | tee -a "$log" &> /dev/null
     fi
  done
 

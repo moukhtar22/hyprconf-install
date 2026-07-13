@@ -4,7 +4,7 @@
 #### Shell Ninja ( https://github.com/shell-ninja ) ####
 
 
-# --------------- color defination
+# --------------- color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -14,7 +14,7 @@ cyan="\e[1;36m"
 orange="\e[1;38;5;214m"
 end="\e[1;0m"
 
-# --------------- color defination (hex for gum)
+# --------------- color definition (hex for gum)
 red_hex="#FF0000"       # Bright red
 green_hex="#00FF00"     # Bright green
 yellow_hex="#FFFF00"    # Bright yellow
@@ -74,6 +74,10 @@ check_pkgman() {
         pkgman="zypper"
         echo "pkgman=$pkgman" >> "$pkgman_cache" 2>&1 | tee -a "$log"
 
+    elif command -v apt-get &> /dev/null; then
+        pkgman="apt"
+        echo "pkgman=$pkgman" >> "$pkgman_cache" 2>&1 | tee -a "$log"
+
     else
         fn_exit "Sorry, the script won't work with your package manager for now..."
     fi
@@ -98,7 +102,7 @@ if [[ -f "$cache_file" ]]; then
     if [[ -z "$have_nvidia" ]]; then
         msg err "User prompt was not given properly. Please run the script again..."
 
-        fn_ask "Would you like to run the script agaain?" "Yes, sure." "No, close it."
+        fn_ask "Would you like to run the script again?" "Yes, sure." "No, close it."
 
         if [[ $? -eq 0 ]]; then
             gum spin --spinner dot --title "Starting the script again.." -- sleep 3
@@ -243,7 +247,7 @@ if [[ "$install_browser" =~ ^[Yy]$ ]]; then
         )
         echo "$choice" > "$cache_dir/browser"
 
-    elif [[ "$pkgman" == "dnf" ]]; then
+    elif command -v dnf &> /dev/null || command -v apt-get &> /dev/null; then
         msg ask "Choose a browser: "
         choice=$(gum choose \
             --cursor.foreground "#00FFFF" \
@@ -315,8 +319,8 @@ fi
 clear
 
 msg ask "Choose which config you want to setup: " && sleep 1
-msg att "The 'hyprconf' config will change colors according to the current wallpaper using ${cyan}pywal${end}, inspired by JaKooLit's cofig." && echo
-msg att "The 'hyprconf-v2' config hase some pre-configured themes and color pallets, inspired by HyDE."
+msg att "The 'hyprconf' config will change colors according to the current wallpaper using ${cyan}pywal${end}, inspired by JaKooLit's config." && echo
+msg att "The 'hyprconf-v2' config has some pre-configured themes and color palettes, inspired by HyDE."
 
 choice=$(gum choose \
     --limit=1 \
@@ -333,15 +337,10 @@ sleep 1 && clear
 "$common_scripts/${choice}.sh" 2>&1 | tee -a >(sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> "$log")
 
 
-# setting up the keyboard leyout
+# setting up the keyboard layout
 keyboardLayout=$(localectl status | grep "Keymap" | awk '{print $3}')
 msg att "Your current keyboard layout is set to '$keyboardLayout'"
-gum confirm "Is it ok for you?" \
-    --prompt.foreground "#ff8700" \
-    --affirmative "Yes! Set" \
-    --selected.background "#00FFFF" \
-    --selected.foreground "#000" \
-    --negative "No! Change"
+fn_ask "Is it ok for you?" "Yes! Set" "No! Change"
 
 if [ $? -eq 1 ]; then
     layout=$(localectl \
@@ -393,7 +392,7 @@ sleep 1 && clear
 
 gum spin --spinner dot \
          --title "Starting final checkup.." \
-         sleep 3
+         -- sleep 3
 clear
 
 "$scripts_dir/12-final.sh" 2>&1 | tee -a >(sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> "$log")

@@ -29,7 +29,7 @@ touch "$log"
 
 
 msg act "Installing pywal.."
-sudo pip install pywal 2>&1 | tee -a "$log"
+sudo pip install pywal --break-system-packages 2>&1 | tee -a "$log"
 
 sleep 1
 

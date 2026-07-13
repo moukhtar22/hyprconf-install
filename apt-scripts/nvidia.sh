@@ -56,10 +56,10 @@ mkdir -p "$log_dir"
 touch "$log"
 
 nvidia_pkg=(
-  akmod-nvidia
-  xorg-x11-drv-nvidia-cuda
-  libva
-  libva-nvidia-driver
+  nvidia-driver
+  firmware-misc-nonfree
+  libva2
+  nvidia-vaapi-driver
 )
 
 
@@ -75,10 +75,10 @@ printf "\n\n"
 # installing nvidia packages
 for __nvidia in "${to_install[@]}"; do
     install_package "$__nvidia"
-    if rpm -q "$__nvidia" &>/dev/null; then
-        echo "[ DONE ] - $__nvidia was installed successfully!\n" 2>&1 | tee -a "$log" &>/dev/null
+    if dpkg -s "$__nvidia" &>/dev/null; then
+        echo "[ DONE ] - $__nvidia was installed successfully!" 2>&1 | tee -a "$log" &>/dev/null
     else
-        echo "[ ERROR ] - Sorry, could not install $__nvidia!\n" 2>&1 | tee -a "$log" &>/dev/null
+        echo "[ ERROR ] - Sorry, could not install $__nvidia!" 2>&1 | tee -a "$log" &>/dev/null
     fi
 done
 
@@ -95,7 +95,7 @@ else
 fi
 
 # Update GRUB configuration
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+sudo update-grub
 
 msg dn "Nvidia DRM modeset and additional options have been added to /etc/default/grub. Please reboot for changes to take effect." 2>&1 | tee -a "$log"
 

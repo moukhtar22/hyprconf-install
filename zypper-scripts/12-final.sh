@@ -46,84 +46,73 @@ log_dir="$parent_dir/Logs"
 log="$log_dir/final_checkup-$(date +%d-%m-%y).log"
 
 # skip installed cache
-installed_cache="$parent_dir/.cache/installed_packages"
+cache_dir="$parent_dir/.cache"
+installed_cache="$cache_dir/installed_packages"
 
 if [[ ! -f "$log" ]]; then
     mkdir -p "$log_dir"
     touch "$log"
 fi
 
-aur_helper=$(command -v yay || command -v paru) # find the aur helper
-
 checkup=(
-    btop
-    cava
-    cliphist
-    curl
-    # dunst
-    fastfetch
-    ffmpeg
-    grimblast-git
-    partitionmanager
     hyprland
     hyprlock
-    # hyprpaper
     hypridle
     hyprcursor
-    hyprsunset
-    hyprland-qtutils
-    imagemagick
+    hyprpolkitagent
+    curl
+    fastfetch
+    ffmpeg
+    git
+    grim
+    ImageMagick
     jq
     kitty
-    kvantum
     kvantum-qt5
+    kvantum-qt6
+    kvantum-manager
     lxappearance
-    network-manager-applet
-    networkmanager
-    nodejs
-    npm
-    ntfs-3g
-    nwg-look
+    make
+    neovim
+    NetworkManager-applet
     nvtop
-    os-prober
-    pacman-contrib
     pamixer
-    pavucontrol
     pciutils
-    polkit-kde-agent
-    power-profiles-daemon
-    python-pywal
-    python-gobject
-    pyprland
+    pavucontrol
+    pipewire-alsa
+    python312-requests
     qt5ct
-    qt5-svg
-    qt6ct-kde
-    qt6-svg
-    qt6-5compat
-    qt6-declarative
-    qt6-svg
-    qt5-graphicaleffects
-    qt5-quickcontrols2
+    qt6ct
     ripgrep
     rofi-wayland
-    # swappy
-    satty
-    swaync
-    awww
-    sddm
-    ark
-    crudini
-    dolphin
-    gwenview
-    okular
-    tty-clock
+    slurp
+    SwayNotificationCenter
+    swappy
+    swww
+    tar
     unzip
     waybar
     wget
     wl-clipboard
-    xorg-xrandr
+    xdg-utils
     yazi
-    zip
+    btop
+    cava
+    mpv
+    mpv-mpris
+    nwg-look
+    fira-code-fonts
+    fontawesome-fonts
+    google-noto-sans-cjk-fonts
+    google-noto-coloremoji-fonts
+    liberation-fonts
+    symbols-only-nerd-fonts
+    libqt5-qtgraphicaleffects
+    libqt5-qtquickcontrols
+    libqt5-qtquickcontrols2
+    sddm-qt6
+    xdg-desktop-portal-hyprland
+    xdg-desktop-portal-gtk
 )
 
 
@@ -136,24 +125,31 @@ to_install=($(printf "%s\n" "${checkup[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
-# Instlling main packages...
-for final_check in "${to_install[@]}"; do
-    msg act "Somehow $final_check could not be installed before. Installing it now..."
-    $aur_helper -S "$final_check" --noconfirm &> /dev/null
+# Installing any missed packages...
+for _pkgs in "${to_install[@]}"; do
+    msg act "Somehow $_pkgs could not be installed before. Installing it now..."
+    sudo zypper in -y "$_pkgs"
 
-    if sudo pacman -Q "$final_check" &> /dev/null; then
+    if sudo zypper se -i "$_pkgs" &> /dev/null; then
 
-        msg dn "Finally $final_check was installed successfully!"
+        msg dn "Finally $_pkgs was installed successfully!"
         echo
 
-        echo "[ DONE ] - $final_check was installed successfully!\n" 2>&1 | tee -a "$log" &>/dev/null
+        echo "[ DONE ] - $_pkgs was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
 
-        msg err "Sorry, this time also could not install $final_check.."
+        msg err "Sorry, this time also could not install $_pkgs.."
         echo
 
-        echo "[ ERROR ] - Sorry, could not install $final_check!\n" 2>&1 | tee -a "$log" &>/dev/null
+        echo "[ ERROR ] - Sorry, could not install $_pkgs!" 2>&1 | tee -a "$log" &> /dev/null
     fi
 done
+
+# checking if pywal is installed
+if ! command -v wal &> /dev/null; then
+    if command -v pipx &> /dev/null; then
+        pipx install pywal 2>&1 | tee -a "$log" &> /dev/null
+    fi
+fi
 
 sleep 1 && clear

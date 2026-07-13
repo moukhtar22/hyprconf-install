@@ -5,7 +5,7 @@
 
 # I copied this script from JaKooLit. See here https://github.com/JaKooLit
 
-# color defination
+# color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"

@@ -3,7 +3,7 @@
 #### Advanced Hyprland Installation Script by ####
 #### Shell Ninja ( https://github.com/shell-ninja ) ####
 
-# color defination
+# color definition
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
@@ -53,7 +53,7 @@ log="$log_dir/sddm-$(date +%d-%m-%y).log"
 
 if [[ -f "$log" ]]; then
     errors=$(grep "ERROR" "$log")
-    last_installed=$(grep "qt6-qtsvg" "$log" | awk {'print $2'})
+    last_installed=$(grep "xorg-x11-server" "$log" | awk {'print $2'})
     if [[ -z "$errors" && "$last_installed" == "DONE" ]]; then
         msg skp "Skipping this script. No need to run it again..."
         sleep 1
@@ -109,3 +109,5 @@ sudo systemctl enable sddm.service 2>&1 | tee -a "$log"
 
 # run sddm theme script
 "$common_scripts/sddm_theme.sh"
+
+sleep 1 && clear
