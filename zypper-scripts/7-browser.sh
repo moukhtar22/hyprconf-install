@@ -41,6 +41,8 @@ source "$dir/1-global_script.sh"
 parent_dir="$(dirname "$dir")"
 source "$parent_dir/interaction_fn.sh"
 
+
+
 # log directory
 log_dir="$parent_dir/Logs"
 log="$log_dir/browser-$(date +%d-%m-%y).log"
@@ -68,9 +70,9 @@ case $browser in
             msg skp "Brave browser is already installed. Skipping"
             exit 0
         else
+            msg act "Installing Brave..."
             curl -fsS https://dl.brave.com/install.sh | sh
         fi
-
         sleep 1
 
         if [[ -n "$(command -v brave-browser)" ]]; then
@@ -87,18 +89,15 @@ case $browser in
             msg err "Could not installed Brave.."
             echo "[ ERROR ] - Could not install Brave" 2>&1 | tee -a "$log" &> /dev/null
         fi
+
         ;;
     "Google_Chrome")
         if command -v google-chrome-stable &> /dev/null; then
             msg skp "Google Chrome is already installed. Skipping"
             exit 0
         else
-            install_package fedora-workstation-repositories
-            sudo dnf config-manager setopt google-chrome.enabled=1 &> /dev/null
-
-            sleep 1
-
-            install_package google-chrome-stable
+            msg act "Installing Google Chrome..."
+            install_package_opi google-chrome-stable
         fi
         sleep 1
 
@@ -106,7 +105,7 @@ case $browser in
             msg dn "Google Chrome was installed successfully!"
             echo "[ DONE ] - Google Chrome was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
 
-            msg att "After completting the installation, please make sure to open the browser and follow the steps.\n" && sleep 2 && echo
+            msg att "After completting the installation, please make sure to open the browser and follow the steps." && sleep 2 && echo
 
             printf "[ 1 ] - Open the browser and in the search bar, typr 'chrome://flags' and press enter\n"
             printf "[ 2 ] - Now search for 'Ozone platform'\n"
@@ -122,9 +121,9 @@ case $browser in
             msg skp "Chromium is already installed. Skipping"
             exit 0
         else
+            msg act "Installing Chromium..."
             install_package chromium
         fi
-
         sleep 1
 
         if [[ -n "$(command -v chromium)" ]]; then
@@ -144,7 +143,7 @@ case $browser in
         ;;
     "Firefox")
         if command -v firefox &> /dev/null; then
-            msg skp "Chromium is already installed. Skipping"
+            msg skp "Firefox is already installed. Skipping"
             exit 0
         else
             install_package firefox
@@ -160,17 +159,38 @@ case $browser in
             echo "[ ERROR ] - Could not install firefox" 2>&1 | tee -a "$log" &> /dev/null
         fi
         ;;
+    "Vivaldi")
+        if command -v vivaldi &> /dev/null; then
+            msg skp "Vivaldi is already installed. Skipping"
+            exit 0
+        else
+            msg act "Installing Vivaldi..."
+            install_package_opi vivaldi
+        fi
+        sleep 1
+
+        if [[ -n "$(command -v vivaldi)" ]]; then
+            msg dn "Vivaldi was installed successfully!"
+            echo "[ DONE ] - Vivaldi was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
+
+            msg att "After completting the installation, please make sure to open the browser and follow the steps..." && sleep 2 && echo
+
+            printf "[ 1 ] - Open the browser and in the search bar, typr 'chrome://flags' and press enter\n"
+            printf "[ 2 ] - Now search for 'Ozone platform'\n"
+            printf "[ 3 ] - Choose 'Wayland' from default and restart the browser.\n"
+            sleep 5
+        else 
+            msg err "Could not installed Vivaldi.."
+            echo "[ ERROR ] - Could not install Vivaldi" 2>&1 | tee -a "$log" &> /dev/null
+        fi
+        ;;
     "Zen Browser")
         if command -v zen-browser &> /dev/null; then
             msg skp "Zen browser is already installed. Skipping"
             exit 0
         else
-            msg act "Installing the zen-browser..." && sleep 0.5
-            msg att "Enabling the copr repo for it..."
-            sudo dnf copr enable sneexy/zen-browser -y
-            sudo wget "https://copr.fedorainfracloud.org/coprs/sneexy/zen-browser/repo/fedora-$(rpm -E %fedora)/sneexy-zen-browsder-fedora-$(rpm -E %fedora).repo" -O "/etc/yum.repos.d/_copr_sneexy-zen-browser.repo"
-            sleep 1
-            sudo dnf install zen-browser-avx2 -y
+            msg act "Installing Zen-Browser..."
+            install_package_opi zen-browser
         fi
 
         sleep 1
@@ -178,8 +198,8 @@ case $browser in
         if [[ -n "$(command -v zen-browser)" ]]; then
             msg dn "Zen Browser was installed successfully!"
             echo "[ DONE ] - Zen Browser was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
-        else 
-            msg err "Could not installed Zen Browser.."
+        else
+            msg err "Could not install Zen Browser.."
             echo "[ ERROR ] - Could not install Zen Browser" 2>&1 | tee -a "$log" &> /dev/null
         fi
         ;;
@@ -189,7 +209,7 @@ case $browser in
         exit 0
         ;;
     *)
-          msg err "Invalid choice: $browser..."
+        msg err "Invalid choice: $browser..."
         ;;
 esac
 

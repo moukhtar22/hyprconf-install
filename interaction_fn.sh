@@ -1,12 +1,12 @@
 #!/bin/bash
-# initial user interection functions...
+# initial user interaction functions...
 
-# color defination (ascii)
+# color definition (ascii)
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
 blue="\e[1;34m"
-megenta="\e[1;1;35m"
+magenta="\e[1;1;35m"
 cyan="\e[1;36m"
 orange="\x1b[38;5;214m"
 end="\e[1;0m"
@@ -64,6 +64,15 @@ fn_exit() {
 
 # only for asking the prompts...
 fn_ask_prompts() {
+    # Generate human-readable labels
+    local -A label_to_key
+    local labels=()
+    for key in "${!options[@]}"; do
+        local label=$(echo "$key" | tr '_' ' ' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')
+        label_to_key["$label"]="$key"
+        labels+=("$label")
+    done
+
     # Use gum to capture selected options
     local selected
     selected=$(gum choose \
@@ -72,7 +81,7 @@ fn_ask_prompts() {
         --cursor.foreground "#00FFFF" \
         --item.foreground "#fff" \
         --selected.foreground "#00FF00" \
-        "${!options[@]}")
+        "${labels[@]}")
     
     # Reset all options to 'N' by default
     for key in "${!options[@]}"; do
@@ -80,21 +89,31 @@ fn_ask_prompts() {
     done
 
     # Set the selected options to 'Y'
-    for key in $selected; do
-        options[$key]="Y"
-    done
+    while IFS= read -r label; do
+        if [[ -n "$label" ]]; then
+            local key="${label_to_key[$label]}"
+            options[$key]="Y"
+        fi
+    done <<< "$selected"
 
     # Update the cache file with the new values
     > "$cache_file"
     for key in "${!options[@]}"; do
         echo "$key='${options[$key]}'" >> "$cache_file"
     done
-
-    # cat "$cache_file"
 }
 
 # only for asking shell prompts...
 fn_shell() {
+    # Generate human-readable labels
+    local -A label_to_key
+    local labels=()
+    for key in "${!shell_options[@]}"; do
+        local label=$(echo "$key" | tr '_' ' ' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')
+        label_to_key["$label"]="$key"
+        labels+=("$label")
+    done
+
     # Use gum to capture selected options
     local selected
     selected=$(gum choose \
@@ -103,7 +122,7 @@ fn_shell() {
         --cursor.foreground "#00FFFF" \
         --item.foreground "#fff" \
         --selected.foreground "#00FF00" \
-        "${!shell_options[@]}")
+        "${labels[@]}")
     
     # Reset all options to 'N' by default
     for key in "${!shell_options[@]}"; do
@@ -111,17 +130,18 @@ fn_shell() {
     done
 
     # Set the selected options to 'Y'
-    for key in $selected; do
-        shell_options[$key]="Y"
-    done
+    while IFS= read -r label; do
+        if [[ -n "$label" ]]; then
+            local key="${label_to_key[$label]}"
+            shell_options[$key]="Y"
+        fi
+    done <<< "$selected"
 
     # Update the cache file with the new values
     > "$shell_cache"
     for key in "${!shell_options[@]}"; do
         echo "$key='${shell_options[$key]}'" >> "$shell_cache"
     done
-
-    # cat "$cache_file"
 }
 
 msg() {

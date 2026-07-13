@@ -63,18 +63,22 @@ else
 fi
 
 # checking if vs code is installed
-if rpm -q code &> /dev/null; then
+if dpkg -s code &> /dev/null; then
     msg skp "Skipping installing Visual Studio Code. It's already installed."
 # insalling vs code
 else
     msg act "Installing Visual Studio Code..."
 
     # adding vs code repo
-    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc 2>&1 | tee -a "$log" &>> /dev/null
-    sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo' 2>&1 | tee -a "$log" &>> /dev/null
-    sudo dnf install code -y 2>&1 | tee -a "$log"
+    sudo apt-get install -y wget gpg apt-transport-https 2>&1 | tee -a "$log" &>> /dev/null
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+    sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+    sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
+    rm -f packages.microsoft.gpg
+    sudo apt-get update 2>&1 | tee -a "$log" &>> /dev/null
+    sudo apt-get install code -y 2>&1 | tee -a "$log"
 
-    if rpm -q code &> /dev/null; then
+    if dpkg -s code &> /dev/null; then
         msg dn "Visual Studio Code was installed successfully..." 2>&1 | tee -a >(sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> "$log")
 
         common_scripts="$parent_dir/common"

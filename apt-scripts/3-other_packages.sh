@@ -66,23 +66,22 @@ fi
 main_packages=(
     curl
     fastfetch
-    ffmpeg-free
+    ffmpeg
     git
     grim
-    ImageMagick
+    imagemagick
     jq
     kitty
-    kvantum
-    kvantum-qt5
+    qt5-style-kvantum
     less
-    libX11-devel
-    libXext-devel
+    libx11-dev
+    libxext-dev
     lxappearance
     make
-    network-manager-applet
-    NetworkManager-tui
+    network-manager-gnome
+    network-manager
     nodejs
-    nodejs-npm
+    npm
     neovim
     nvtop
     pamixer
@@ -90,32 +89,30 @@ main_packages=(
     pciutils
     pavucontrol
     pipewire-alsa
-    pipewire-utils
+    pipewire-bin
     pipewire-pulse
     power-profiles-daemon
     pulseaudio-utils
     python3-requests
-    python3-devel
-    python3-gobject
+    python3-dev
+    python3-gi
     python3-pip
-    python3-pillow
+    python3-pil
     python3-pyquery
     qt5ct
-    qt6ct-kde
-    qt6-qtsvg
+    qt6ct
+    libqt6svg6
     ripgrep
-    rofi-wayland
+    rofi
     slurp
-    SwayNotificationCenter
-    satty
+    sway-notification-center
     tar
     unzip
     waybar
-    wget2
+    wget
     wl-clipboard
     xdg-utils
-    xfce-polkit
-    yazi
+    polkit-kde-agent
 )
 
 # other necessary packages
@@ -123,41 +120,43 @@ other_packages=(
     btop
     cava
     cliphist
-    kde-partitionmanager
+    gnome-disk-utility
     mpv
     mpv-mpris
     nwg-look
     pamixer
-    awww
     wlogout
 )
 
-dolphin=(
-    ark
+file_utils=(
     crudini
-    dolphin
-    gwenview
-    okular
+    thunar
+    thunar-archive-plugin
+    file-roller
 )
+
+
+
 
 # url to install grimblast
 grimblast_url=https://github.com/hyprwm/contrib.git
 
 # checking already installed packages 
-for skipable in "${main_packages[@]}" "${other_packages[@]}" "${dolphin[@]}"; do
+for skipable in "${main_packages[@]}" "${other_packages[@]}" "${file_utils[@]}"; do
     skip_installed "$skipable"
 done
 
 installble_main_pkg=($(printf "%s\n" "${main_packages[@]}" | grep -vxFf "$installed_cache"))
 installble_other_pkg=($(printf "%s\n" "${other_packages[@]}" | grep -vxFf "$installed_cache"))
-installble_dolphin_pkg=($(printf "%s\n" "${dolphin[@]}" | grep -vxFf "$installed_cache"))
+installble_file_utils_pkg=($(printf "%s\n" "${file_utils[@]}" | grep -vxFf "$installed_cache"))
+
 
 printf "\n\n"
 
 # installing necessary packages
-for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_dolphin_pkg[@]}"; do
+for packages in "${installble_main_pkg[@]}" "${installble_other_pkg[@]}" "${installble_file_utils_pkg[@]}"; do
   install_package "$packages"
-  if rpm -q "$packages" &> /dev/null; then
+  if dpkg -s "$packages" &> /dev/null; then
     echo "[ DONE ] - $packages was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
   else
     echo "[ ERROR ] - Sorry, could not install '$packages'" 2>&1 | tee -a "$log" &> /dev/null
@@ -177,13 +176,14 @@ else
 
   sleep 1
   rm -rf "$parent_dir/.cache/grimblast" 2>&1 | tee -a "$log"
-fi
 
-if [ -f '/usr/local/bin/grimblast' ]; then
-  msg dn "Grimblast was installed successfully..."
-  printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log"
+	if [ -f '/usr/local/bin/grimblast' ]; then
+    msg dn "Grimblast was installed successfully..."
+    printf "[ DONE ] - Grimblast was installed successfully...\n" 2>&1 | tee -a "$log" &> /dev/null
+	fi
 fi
 
 sleep 1 && clear
 
 "$dir/pywal.sh" 2>&1 | tee -a >(sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> "$log")
+"$dir/3.1-swww.sh" 2>&1 | tee -a >(sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> "$log")

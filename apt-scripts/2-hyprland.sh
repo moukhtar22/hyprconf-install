@@ -66,10 +66,6 @@ _hypr=(
     hyprland
     hyprlock
     hypridle
-    hyprcursor
-    hyprsunset
-    # hyprpolkitagent
-    pyprland
 )
 
 # checking already installed packages 
@@ -81,15 +77,58 @@ to_install=($(printf "%s\n" "${_hypr[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
+# Check for Debian 13 (trixie)
+is_debian_13=false
+if grep -qiE 'trixie|version_id="?13"?' /etc/os-release 2>/dev/null; then
+    is_debian_13=true
+fi
+
+if [[ "$is_debian_13" == true ]]; then
+    if ! grep -q "^deb.*trixie-backports" /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; then
+        msg act "Adding trixie-backports repository for Hyprland..."
+        echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/trixie-backports.list > /dev/null
+        sudo apt-get update
+    fi
+fi
+
 # Installation of Hyprland basics
 for hypr_pkgs in "${to_install[@]}"; do
-    install_package "$hypr_pkgs"
+    msg act "Installing $hypr_pkgs..."
+    if [[ "$is_debian_13" == true ]]; then
+        sudo apt-get install -y -t trixie-backports "$hypr_pkgs"
+    else
+        sudo apt-get install -y "$hypr_pkgs"
+    fi
 
-    if rpm -q "$hypr_pkgs" &> /dev/null; then
+    if dpkg -s "$hypr_pkgs" &> /dev/null; then
         echo "[ DONE ] - '$hypr_pkgs' was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
     else
         echo "[ ERROR ] - Sorry, could not install '$hypr_pkgs'" 2>&1 | tee -a "$log" &> /dev/null
     fi
 done
+
+sudo apt install hyprland-guiutils -y && msg dn "hyprland-guiutils was installed successfully!" && echo "[ DONE ] hyprland-guiutils was installed sucessfully!" 2>&1 | tee -a "$log" &> /dev/null
+
+# installing pyprland
+# pyprland's executable is 'pypr', not 'pyprland'
+if ! command -v pypr &> /dev/null && [ ! -x "$HOME/.local/bin/pypr" ]; then
+    msg act "Installing pyprland..."
+    sudo apt-get install -y python3-pip python3-aiofiles
+    pip install --user pyprland 2>&1 | tee -a "$log"
+
+    export PATH="$PATH:$HOME/.local/bin"
+
+    if command -v pypr &> /dev/null; then
+        msg dn "pyprland was installed successfully!"
+    else
+        msg err "pyprland failed to install..."
+    fi
+else
+    msg dn "pyprland is already installed..."
+fi
+
+# Executing separate scripts for hyprcursor, hyprsunset, and swww
+"$dir/2.1-hyprcursor.sh"
+"$dir/2.2-hyprsunset.sh"
 
 sleep 1 && clear

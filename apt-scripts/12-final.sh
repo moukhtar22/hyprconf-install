@@ -58,86 +58,79 @@ checkup=(
     hyprland
     hyprlock
     hypridle
-    hyprcursor
+    hyprland-guiutils
+    hyprcursor-util
     hyprsunset
-    pyprland
+    pypr
     curl
-    # dunst
     fastfetch
-    ffmpeg-free
+    ffmpeg
     git
     grim
-    ImageMagick
+    imagemagick
     jq
     kitty
-    kvantum
-    kvantum-qt5
-    libX11-devel
-    libXext-devel
+    qt5-style-kvantum
+    libx11-dev
+    libxext-dev
     lxappearance
     make
-    network-manager-applet
-    NetworkManager-tui
+    network-manager-gnome
+    network-manager
     neovim
     nvtop
     pamixer
     pciutils
     pavucontrol
     pipewire-alsa
-    pipewire-utils
+    pipewire-bin
     pipewire-pulse
-    # polkit-kde-agent
     power-profiles-daemon
     pulseaudio-utils
     python3-requests
-    python3-devel
-    python3-gobject
+    python3-dev
+    python3-gi
     python3-pip
-    python3-pillow
+    python3-pil
     python3-pyquery
     qt5ct
-    qt6ct-kde
-    qt6-qtsvg
+    qt6ct
+    libqt6svg6
     ripgrep
-    rofi-wayland
     slurp
-    SwayNotificationCenter
-    satty
+    sway-notification-center
     tar
     unzip
     waybar
-    wget2
+    wget
     wl-clipboard
     xdg-utils
-    yazi
     btop
     cava
     cliphist
-    kde-partitionmanager
+    gnome-disk-utility
     mpv
     mpv-mpris
     nwg-look
     pamixer
-    awww
-    ark
+    wlogout
     crudini
-    dolphin
-    gwenview
-    okular
-    fontawesome-fonts-all
-    google-noto-sans-cjk-fonts
-    google-noto-color-emoji-fonts
-    google-noto-emoji-fonts
-    jetbrains-mono-fonts
-    qt5-qtgraphicaleffects
-    qt5-qtquickcontrols
+    thunar
+    thunar-archive-plugin
+    file-roller
+    fonts-font-awesome
+    fonts-noto-cjk
+    fonts-noto-color-emoji
+    fonts-noto-core
+    fonts-jetbrains-mono
+    qml-module-qtgraphicaleffects
+    qml-module-qtquick-controls2
     sddm
     qt6-qt5compat 
     qt6-qtdeclarative 
-    qt6-qtsvg
-    xfce-polkit
+    libqt6svg6
+    polkit-kde-agent
     xdg-desktop-portal-hyprland
-    xdg-desktop-portal-kde
 )
 
 
@@ -153,9 +146,9 @@ printf "\n\n"
 # Instlling main packages...
 for _pkgs in "${to_install[@]}"; do
     msg act "Somehow $_pkgs could not be installed before. Installing it now..."
-    sudo dnf install -y "$_pkgs"
+    sudo apt-get install -y "$_pkgs"
 
-    if rpm -q "$_pkgs" &> /dev/null; then
+    if dpkg -s "$_pkgs" &> /dev/null; then
 
         msg dn "Finally $_pkgs was installed successfully!"
         echo
@@ -172,7 +165,12 @@ done
 
 # checking if pywal is installed
 if ! command -v wal &> /dev/null; then
-    sudo pip install pywal 2>&1 | tee -a "$log" &> /dev/null
+    sudo pip install pywal --break-system-packages 2>&1 | tee -a "$log" &> /dev/null
+fi
+
+# checking if swww is installed
+if ! command -v swww &> /dev/null; then
+    "$dir/3.1-swww.sh"
 fi
 
 sleep 1 && clear
