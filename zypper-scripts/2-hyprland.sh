@@ -73,12 +73,13 @@ hypr_pkgs=(
     hyprlock
     hypridle
     hyprpolkitagent
+    hyprsunset
 )
 
 hypr_python=(
-  python311-aiofiles
-  python312-pip
-  python312-pipx
+  python314-aiofiles
+  python314-pip
+  python314-pipx
   python-base
 )
 

@@ -83,7 +83,7 @@ hypr_package=(
   pavucontrol
   pciutils
   pipewire-alsa
-  python312-requests
+  python313-requests
   qt5ct
   qt6ct
   qt6-svg-devel
@@ -96,7 +96,7 @@ hypr_package=(
   slurp
   SwayNotificationCenter
   swappy
-  swww
+  awww
   tar
   unzip
   wayland-protocols-devel
@@ -122,28 +122,27 @@ no_recommands=(
   waybar
 )
 
-# thunar
-thunar=(
-ffmpegthumbnailer
-file-roller
-thunar 
-thunar-volman 
-tumbler 
-thunar-plugin-archive
+# dolphin
+dolphin=(
+    ark
+    crudini
+    dolphin
+    gwenview
+    okular
 )
 
 grimblast_url=https://github.com/hyprwm/contrib.git
 
 
 # checking already installed packages 
-for skipable in "${hypr_package[@]}" "${other_packages[@]}" "${no_recommands[@]}" "${thunar[@]}"; do
+for skipable in "${hypr_package[@]}" "${other_packages[@]}" "${no_recommands[@]}" "${dolphin[@]}"; do
     skip_installed "$skipable"
 done
 
 to_install_hypr=($(printf "%s\n" "${hypr_package[@]}" | grep -vxFf "$installed_cache"))
 to_install_others=($(printf "%s\n" "${other_packages[@]}" | grep -vxFf "$installed_cache"))
 to_install_no_recommands=($(printf "%s\n" "${no_recommands[@]}" | grep -vxFf "$installed_cache"))
-to_install_thunar=($(printf "%s\n" "${thunar[@]}" | grep -vxFf "$installed_cache"))
+to_install_dolphin=($(printf "%s\n" "${dolphin[@]}" | grep -vxFf "$installed_cache"))
 
 printf "\n\n"
 
@@ -157,8 +156,8 @@ for packages in "${to_install_hypr[@]}" "${to_install_others[@]}"; do
     fi
 done
 
-# installing thunar
-for pkgs in "${to_install_no_recommands[@]}" "${to_install_thunar[@]}"; do
+# installing dolphin
+for pkgs in "${to_install_no_recommands[@]}" "${to_install_dolphin[@]}"; do
   install_package_no_recommands "$pkgs"
     if sudo zypper se -i "$pkgs" &> /dev/null ; then
         echo "[ DONE ] - $pkgs was installed successfully!" 2>&1 | tee -a "$log" &> /dev/null
