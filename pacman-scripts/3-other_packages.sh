@@ -80,7 +80,7 @@ other_packages=(
     partitionmanager
     imagemagick
     jq
-    konsole
+    # konsole
     kitty
     kvantum
     kvantum-qt5
